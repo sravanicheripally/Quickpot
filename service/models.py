@@ -35,3 +35,12 @@ class Details(models.Model):
     from_whom = models.CharField(max_length=200, null=True)
     image = models.ImageField()
     price = models.IntegerField(null=True)
+
+
+class Drivers(models.Model):
+    name = models.CharField(max_length=50)
+    vehicle_name = models.CharField(max_length=30)
+    vehicle_no = models.CharField(max_length=10)
+    area = models.CharField(max_length=30)
+    phone_no = models.CharField(max_length=10)
+    email = models.EmailField()
