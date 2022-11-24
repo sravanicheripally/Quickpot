@@ -4,9 +4,10 @@ from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import SignUpForm,DomesticForm,InternationalForm, ParcelForm, ServicesForm
 from django.contrib.auth import authenticate, login, logout
-from .models import Parcel, Services, Domestic, Details
+from .models import Parcel, Services, Domestic, Details, Drivers
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
+from django.core.mail import send_mail
 
 
 def base(request):
@@ -88,11 +89,11 @@ def address_enter(request):
 
 
 def payment_options(request):
-    if request.method == 'POST':
-        amount  = 50000
-        order_currency = 'INR'
-        client = razorpay.Client(auth=('rzp_test_6lrPUDLV0dRFf9', 'OjNBfOuoD0M8yl3Gkeo9YuJK'))
-        payment = client.order.create({'amount': amount, 'currency': 'INR', 'payment_capture': '1'})
+    # if request.method == 'POST':
+    #     amount  = 50000
+    #     order_currency = 'INR'
+    #     client = razorpay.Client(auth=('rzp_test_6lrPUDLV0dRFf9', 'OjNBfOuoD0M8yl3Gkeo9YuJK'))
+    #     payment = client.order.create({'amount': amount, 'currency': 'INR', 'payment_capture': '1'})
     price = request.session['price']
     delivery_address = ' '
     delivery_address += request.session['address']['delivery_area']+' ,'
@@ -109,6 +110,20 @@ def success(request):
                     services=request.session['service'],
                     price=request.session['price'])
     order.save()
+    drivers = Drivers.objects.all()
+    drivers_emails = []
+    for i in drivers:
+        print(i.email)
+        drivers_emails.append(i.email)
+    send_mail(
+        'sending mail regarding new order',
+        f"new order has came please accept and pickup the parcel from {request.session['address']['pickup_area']} and deliver"
+        f"to area = {request.session['address']['delivery_area']} , location = {request.session['address']['delivery_location']},"
+        f"pincode= {request.session['address']['delivery_pincode']}",
+        'ravindrareddy72868@gmail.com',
+        drivers_emails,
+        fail_silently=False,
+    )
     return render(request, 'success.html', {'order': order})
 
 
