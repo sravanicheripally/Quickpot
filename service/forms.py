@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import Domestic, International, Parcel, Services
+from .models import Domestic, International, ParcelDetails, OrderDetails
 
 
 class SignUpForm(UserCreationForm):
@@ -31,15 +31,15 @@ class InternationalForm(forms.ModelForm):
         fields = "__all__"
 
 
-class ParcelForm(forms.ModelForm):
+class ParcelDetailsForm(forms.ModelForm):
+    pickup_date = forms.DateField(widget=forms.NumberInput(attrs={'type': 'date'}))
+
     class Meta:
-        model = Parcel
+        model = ParcelDetails
         fields = "__all__"
 
 
-class ServicesForm(forms.ModelForm):
-    date = forms.DateField(widget=forms.NumberInput(attrs={'type': 'date'}))
-
+class OrderDetailsForm(forms.ModelForm):
     class Meta:
-        model = Services
-        fields = "__all__"
+        model = OrderDetails
+        fields ='__all__'

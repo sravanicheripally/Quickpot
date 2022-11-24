@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Domestic,International, Parcel, Details, Drivers, Services
+from .models import Domestic,International, ParcelDetails, OrderDetails, Drivers
 from django.contrib.auth.models import User
 
 
@@ -13,12 +13,12 @@ class Internationaladmin(admin.ModelAdmin):
     list_display = ['id', 'Destination_country', 'origin', 'destination']
 
 
-@admin.register(Parcel)
+@admin.register(ParcelDetails)
 class ParcelAdmin(admin.ModelAdmin):
-    list_display = ['item_weight', 'item_name']
+    list_display = ['item_weight', 'item_name', 'pickup_date', 'delivery_hand', 'parcel_image']
 
 
-@admin.register(Details)
+@admin.register(OrderDetails)
 class Detailsadmin(admin.ModelAdmin):
     list_display = ['id', 'origin', 'destination', 'Destination_country', 'origin', 'destination', 'services',
                     'date', 'price', 'from_whom', 'image']
@@ -27,8 +27,3 @@ class Detailsadmin(admin.ModelAdmin):
 @admin.register(Drivers)
 class DriversAdmin(admin.ModelAdmin):
     list_display = ['name', 'vehicle_name', 'vehicle_no', 'area', 'phone_no', 'email']
-
-
-@admin.register(Services)
-class ServicesAdmin(admin.ModelAdmin):
-    list_display = ['date', 'delivery_hand', 'image']

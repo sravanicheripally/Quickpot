@@ -7,12 +7,8 @@
 <body>
 <form action="" method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{par.as_p}}
-    {{ser.as_p}}
-
-
+    {{parcel_form.as_p}}
     <input type="submit" value="Done">
-
 </form>
 
 </body>

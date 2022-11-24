@@ -12,19 +12,18 @@ class International(models.Model):
     destination = models.IntegerField()
 
 
-class Parcel(models.Model):
+sh = (("self", 'Self'), ("other", 'Other'))
+
+
+class ParcelDetails(models.Model):
     item_weight = models.IntegerField()
     item_name = models.CharField(max_length=200)
-
-
-sh = (("self",'Self'), ("other", 'Other'))
-class Services(models.Model):
-    date = models.DateField(null=True)
+    pickup_date = models.DateField(null=True)
     delivery_hand = models.CharField(max_length=200, choices=sh)
-    image = models.ImageField(upload_to='images')
+    parcel_image = models.ImageField(upload_to='images')
 
 
-class Details(models.Model):
+class OrderDetails(models.Model):
     origin = models.IntegerField()
     destination = models.IntegerField()
     Destination_country = models.CharField(max_length=100)

@@ -2,9 +2,9 @@ import razorpay
 from django.shortcuts import render,HttpResponse,HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-from .forms import SignUpForm,DomesticForm,InternationalForm, ParcelForm, ServicesForm
+from .forms import SignUpForm,DomesticForm,InternationalForm, ParcelDetailsForm,OrderDetailsForm
 from django.contrib.auth import authenticate, login, logout
-from .models import Parcel, Services, Domestic, Details, Drivers
+from .models import ParcelDetails, Domestic, OrderDetails, Drivers
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
@@ -18,7 +18,7 @@ def base(request):
 
 def home(request):
     if request.method == 'POST':
-        print('post mehod')
+        print(request.POST)
         request.session['range'] = request.POST
         return HttpResponseRedirect('parcel')
     range = request.GET.get('range')
@@ -32,13 +32,12 @@ def home(request):
 def parcel(request):
     if request.method == 'POST':
         request.session['summary'] = request.POST
-        form = ServicesForm(request.POST, request.FILES)
+        form = ParcelDetailsForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('summary')
-    par = ParcelForm
-    ser = ServicesForm
-    return render(request, 'parcel.html', {'par': par, 'ser': ser})
+    parcel_form = ParcelDetailsForm
+    return render(request, 'parcel.html', {'parcel_form': parcel_form})
 
 
 def booking(request):
@@ -106,9 +105,10 @@ def payment_options(request):
 
 @csrf_exempt
 def success(request):
-    order = Details(origin=request.session['range']['origin'], destination=request.session['range']['destination'],
+    order = OrderDetails(origin=request.session['range']['origin'], destination=request.session['range']['destination'],
                     item_weight=request.session['summary']['item_weight'],
-                    item_name=request.session['summary']['item_name'], date=request.session['summary']['date'],
+                    item_name=request.session['summary']['item_name'], date=request.session['summary']['pickup_date'],
+                    from_whom=request.session['summary']['delivery_hand'],
                     services=request.session['service'],
                     price=request.session['price'])
     order.save()
