@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Domestic(models.Model):
@@ -16,7 +17,7 @@ sh = (("self", 'Self'), ("other", 'Other'))
 
 
 class ParcelDetails(models.Model):
-    item_weight = models.IntegerField()
+    item_weight = models.CharField(max_length=1)
     item_name = models.CharField(max_length=200)
     pickup_date = models.DateField(null=True)
     delivery_hand = models.CharField(max_length=200, choices=sh)
@@ -24,6 +25,7 @@ class ParcelDetails(models.Model):
 
 
 class OrderDetails(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, editable=False)
     origin = models.IntegerField()
     destination = models.IntegerField()
     Destination_country = models.CharField(max_length=100)

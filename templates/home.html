@@ -2,6 +2,8 @@
 {% block head_content %}
   {% endblock %}
 {% block content %}
+<h3> Welcome {{request.user}}</h3>
+<hr>
 <form action="hom" method="get">
 Choose your Delivery Range:
 <input name='range' type="submit" value="Domestic" class="btn btn-primary">

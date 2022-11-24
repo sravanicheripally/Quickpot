@@ -32,6 +32,7 @@ class InternationalForm(forms.ModelForm):
 
 
 class ParcelDetailsForm(forms.ModelForm):
+    item_weight = forms.CharField(label='item_weight', widget=forms.TextInput(attrs={'placeholder': 'max should be 9kg'}))
     pickup_date = forms.DateField(widget=forms.NumberInput(attrs={'type': 'date'}))
 
     class Meta:

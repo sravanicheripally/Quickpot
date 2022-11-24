@@ -18,7 +18,6 @@ def base(request):
 
 def home(request):
     if request.method == 'POST':
-        print(request.POST)
         request.session['range'] = request.POST
         return HttpResponseRedirect('parcel')
     range = request.GET.get('range')
@@ -105,7 +104,7 @@ def payment_options(request):
 
 @csrf_exempt
 def success(request):
-    order = OrderDetails(origin=request.session['range']['origin'], destination=request.session['range']['destination'],
+    order = OrderDetails(user=request.user, origin=request.session['range']['origin'], destination=request.session['range']['destination'],
                     item_weight=request.session['summary']['item_weight'],
                     item_name=request.session['summary']['item_name'], date=request.session['summary']['pickup_date'],
                     from_whom=request.session['summary']['delivery_hand'],
@@ -177,4 +176,7 @@ def user_logout(request):
     logout(request)
     return HttpResponseRedirect('/sign')
 
+
+def admin_dashboard(request):
+    orders = OrderDetails.objects.all()
 
