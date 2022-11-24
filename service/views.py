@@ -8,6 +8,8 @@ from .models import Parcel, Services, Domestic, Details, Drivers
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
+from sendsms import api
+from sendsms.message import SmsMessage
 
 
 def base(request):
@@ -112,18 +114,25 @@ def success(request):
     order.save()
     drivers = Drivers.objects.all()
     drivers_emails = []
+    drivers_phones = []
     for i in drivers:
         print(i.email)
         drivers_emails.append(i.email)
-    send_mail(
-        'sending mail regarding new order',
-        f"new order has came please accept and pickup the parcel from {request.session['address']['pickup_area']} and deliver"
-        f"to area = {request.session['address']['delivery_area']} , location = {request.session['address']['delivery_location']},"
-        f"pincode= {request.session['address']['delivery_pincode']}",
-        'ravindrareddy72868@gmail.com',
-        drivers_emails,
-        fail_silently=False,
-    )
+        drivers_phones.append(i.phone_no)
+        print(i.phone_no)
+    # send_mail(
+    #     'sending mail regarding new order',
+    #     f"new order has came please accept and pickup the parcel from {request.session['address']['pickup_area']} and deliver"
+    #     f"to area = {request.session['address']['delivery_area']} , location = {request.session['address']['delivery_location']},"
+    #     f"pincode= {request.session['address']['delivery_pincode']}",
+    #     'ravindrareddy72868@gmail.com',
+    #     drivers_emails,
+    #     fail_silently=False,
+    # )
+    message = SmsMessage(body="message sended",
+        from_phone='9966244167',
+        to='7286853993')
+    message.send()
     return render(request, 'success.html', {'order': order})
 
 
