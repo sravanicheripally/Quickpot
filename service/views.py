@@ -31,11 +31,11 @@ def home(request):
 
 def parcel(request):
     if request.method == 'POST':
-        print(request.POST, 'yes')
-        print('------------------------------------------')
         request.session['summary'] = request.POST
-        print(request.session['summary'])
-        return HttpResponseRedirect('summary')
+        form = ServicesForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('summary')
     par = ParcelForm
     ser = ServicesForm
     return render(request, 'parcel.html', {'par': par, 'ser': ser})

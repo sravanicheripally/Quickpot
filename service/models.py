@@ -21,7 +21,7 @@ sh = (("self",'Self'), ("other", 'Other'))
 class Services(models.Model):
     date = models.DateField(null=True)
     delivery_hand = models.CharField(max_length=200, choices=sh)
-    image = models.ImageField(upload_to='services')
+    image = models.ImageField(upload_to='images')
 
 
 class Details(models.Model):
