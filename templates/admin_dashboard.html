@@ -5,6 +5,13 @@
     <title>Title</title>
 </head>
 <body>
+<h2>Orders</h2>
+{% for record in orders %}
+Customer : {{record.user}}
+{{record.status}}
+<h5>driver Details </h5>
+{{driver.name}}<hr>
 
+{% endfor %}
 </body>
 </html>

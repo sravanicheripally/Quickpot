@@ -36,6 +36,7 @@ urlpatterns = [
     path('address', views.address_enter, name='address'),
     path('payment_options', views.payment_options, name='payment_options'),
     path('success', views.success, name='success'),
+    path('admin_dashboard', views.admin_dashboard, name='admin_dashboard')
 ]
 
 if settings.DEBUG:

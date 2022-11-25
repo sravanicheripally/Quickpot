@@ -23,19 +23,24 @@ class ParcelDetails(models.Model):
     delivery_hand = models.CharField(max_length=200, choices=sh)
     parcel_image = models.ImageField(upload_to='images')
 
-
+shipment_details = (
+   ('started', 'started'),
+   ('in process', 'in process'),
+   ('completed', 'completed'),
+)
 class OrderDetails(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, editable=False)
     origin = models.IntegerField()
     destination = models.IntegerField()
-    Destination_country = models.CharField(max_length=100)
+    Destination_country = models.CharField(max_length=100,null=True, editable=False)
     item_weight = models.IntegerField()
     item_name = models.CharField(max_length=200)
     services = models.CharField(max_length=200)
     date = models.DateField(null=True)
     from_whom = models.CharField(max_length=200, null=True)
-    image = models.ImageField()
+    image = models.ImageField(null=True, editable=False)
     price = models.IntegerField(null=True)
+    status = models.CharField(max_length=20, choices=shipment_details, null=True)
 
 
 class Drivers(models.Model):

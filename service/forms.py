@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import Domestic, International, ParcelDetails, OrderDetails
+from django.core.exceptions import ValidationError
 
 
 class SignUpForm(UserCreationForm):
@@ -19,11 +20,13 @@ class DomesticForm(forms.ModelForm):
         model = Domestic
         fields = "__all__"
 
-        # def clean(self):
-        #     origin=self.cleaned_data['enter a valid pincode']
-        #     if origin >=6:
-        #
-
+    def clean(self):
+        super(DomesticForm, self).clean()
+        origin = self.cleaned_data.get('origin')
+        if origin > 2:
+            self._errors['origin'] = self.error_class([
+                'Minimum 5 characters required'])
+        return self.cleaned_data
 
 class InternationalForm(forms.ModelForm):
     class Meta:
@@ -38,6 +41,8 @@ class ParcelDetailsForm(forms.ModelForm):
     class Meta:
         model = ParcelDetails
         fields = "__all__"
+
+
 
 
 class OrderDetailsForm(forms.ModelForm):

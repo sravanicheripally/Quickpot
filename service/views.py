@@ -119,15 +119,17 @@ def success(request):
         drivers_emails.append(i.email)
         drivers_phones.append(i.phone_no)
         print(i.phone_no)
-    # send_mail(
-    #     'sending mail regarding new order',
-    #     f"new order has came please accept and pickup the parcel from {request.session['address']['pickup_area']} and deliver"
-    #     f"to area = {request.session['address']['delivery_area']} , location = {request.session['address']['delivery_location']},"
-    #     f"pincode= {request.session['address']['delivery_pincode']}",
-    #     'ravindrareddy72868@gmail.com',
-    #     drivers_emails,
-    #     fail_silently=False,
-    # )
+
+    send_mail(
+        'sending mail regarding new order',
+        f"new order has came please accept and pickup the parcel from {request.session['address']['pickup_area']} and deliver"
+        f"to area = {request.session['address']['delivery_area']} , location = {request.session['address']['delivery_location']},"
+        f"pincode= {request.session['address']['delivery_pincode']}",
+        'ravindrareddy72868@gmail.com',
+        [drivers_emails[1]],
+        fail_silently=False,
+    )
+    request.session['driver'] = drivers_emails[1]
     message = SmsMessage(body="message sended",
         from_phone='9966244167',
         to='7286853993')
@@ -179,4 +181,11 @@ def user_logout(request):
 
 def admin_dashboard(request):
     orders = OrderDetails.objects.all()
+    driver = Drivers.objects.all()
+    for i in driver:
+        if i.email == request.session["driver"]:
+            driver = i
+    print(driver.name)
+    print(driver.email, '---------------')
+    return render(request, 'admin_dashboard.html', {'orders': orders, 'driver': driver})
 
