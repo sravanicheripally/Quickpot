@@ -40,11 +40,16 @@ def parcel(request):
 
 
 def booking(request):
-    return render(request, 'booking.html')
+    fm=OrderDetails.objects.all()
+    return render(request, 'booking.html',{'form':fm})
 
 
 def tracking(request):
     return render(request, 'tracking.html')
+
+def history(request):
+    fm = OrderDetails.objects.all()
+    return render(request, "history.html", {'form':fm})
 
 
 def profiles(request):

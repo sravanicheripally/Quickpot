@@ -1,4 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
-home page
+
+
+{% for i in form %}
+{% if request.user == i.user %}
+date::{{i.date}}
+
+<a href="/history/"><input name='payment' type="submit" value="ViewDetails" class="btn btn-primary"></a> <br>
+
+
+{% endif %}
+{% endfor %}
 {% endblock %}
