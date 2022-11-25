@@ -11,6 +11,10 @@ from django.core.mail import send_mail
 from sendsms import api
 from sendsms.message import SmsMessage
 
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.http import Http404
+from django.views.generic import ListView
+
 
 def base(request):
     return render(request, 'base.html')
@@ -40,6 +44,7 @@ def parcel(request):
 
 
 def booking(request):
+
     fm=OrderDetails.objects.all()
     return render(request, 'booking.html',{'form':fm})
 
@@ -94,11 +99,11 @@ def address_enter(request):
 
 
 def payment_options(request):
-    # if request.method == 'POST':
-    #     amount  = 50000
-    #     order_currency = 'INR'
-    #     client = razorpay.Client(auth=('rzp_test_6lrPUDLV0dRFf9', 'OjNBfOuoD0M8yl3Gkeo9YuJK'))
-    #     payment = client.order.create({'amount': amount, 'currency': 'INR', 'payment_capture': '1'})
+    if request.method == 'POST':
+        amount  = 50000
+        order_currency = 'INR'
+        client = razorpay.Client(auth=('rzp_test_6lrPUDLV0dRFf9', 'OjNBfOuoD0M8yl3Gkeo9YuJK'))
+        payment = client.order.create({'amount': amount, 'currency': 'INR', 'payment_capture': '1'})
     price = request.session['price']
     delivery_address = ' '
     delivery_address += request.session['address']['delivery_area']+' ,'
@@ -147,6 +152,7 @@ def sign(request):
         fm = SignUpForm(request.POST)
         if fm.is_valid():
             fm.save()
+
             messages.success(request, 'Account Created Successfully !!')
     else:
         fm = SignUpForm()

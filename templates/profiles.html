@@ -79,16 +79,13 @@
                         </div>
                         {% for i in form %}
                         {% if request.user.id == i.id %}
-                        User name : {{i.username}} <br>Email : {{i.email}} <br>first_name : {{i.first_name}} <br>last_name
-                        : {{i.last_name}} <br> {% endif %}
-                        {% endfor %}<br><br><br>{% for i in form %}
-                        {% if request.user.id == i.id %}
                         User name : {{i.username}} <br>
                         Email : {{i.email}} <br>
                         first_name : {{i.first_name}} <br>
                         last_name : {{i.last_name}} <br>
                         {% endif %}
                         {% endfor %}<br><br><br>
+
                     </div>
                     <br>
                     <!--        <div class="row">-->
