@@ -8,8 +8,7 @@ from .models import ParcelDetails, Domestic, OrderDetails, Drivers
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from sendsms import api
-from sendsms.message import SmsMessage
+from twilio.rest import Client
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import Http404
@@ -22,12 +21,20 @@ def base(request):
 
 def home(request):
     if request.method == 'POST':
-        request.session['range'] = request.POST
-        return HttpResponseRedirect('parcel')
+        range = request.session['range']
+        if range == 'Domestic':
+            form = DomesticForm(request.POST)
+            if form.is_valid():
+                request.session['range'] = request.POST
+                return HttpResponseRedirect('parcel')
+            else:
+                return render(request, 'home.html', {'form': form, 'range': range})
     range = request.GET.get('range')
     if range == 'Domestic':
         form = DomesticForm
+        request.session['range'] = range
     else:
+        request.session['range'] = range
         form = InternationalForm
     return render(request, 'home.html', {"form": form, 'range': range})
 
@@ -39,6 +46,8 @@ def parcel(request):
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('summary')
+        else:
+            return render(request, 'parcel.html', {'parcel_form': form})
     parcel_form = ParcelDetailsForm
     return render(request, 'parcel.html', {'parcel_form': parcel_form})
 
@@ -99,11 +108,11 @@ def address_enter(request):
 
 
 def payment_options(request):
-    if request.method == 'POST':
-        amount  = 50000
-        order_currency = 'INR'
-        client = razorpay.Client(auth=('rzp_test_6lrPUDLV0dRFf9', 'OjNBfOuoD0M8yl3Gkeo9YuJK'))
-        payment = client.order.create({'amount': amount, 'currency': 'INR', 'payment_capture': '1'})
+    # if request.method == 'POST':
+    #     amount  = 50000
+    #     order_currency = 'INR'
+    #     client = razorpay.Client(auth=('rzp_test_6lrPUDLV0dRFf9', 'OjNBfOuoD0M8yl3Gkeo9YuJK'))
+    #     payment = client.order.create({'amount': amount, 'currency': 'INR', 'payment_capture': '1'})
     price = request.session['price']
     delivery_address = ' '
     delivery_address += request.session['address']['delivery_area']+' ,'
@@ -119,7 +128,7 @@ def success(request):
                     item_name=request.session['summary']['item_name'], date=request.session['summary']['pickup_date'],
                     from_whom=request.session['summary']['delivery_hand'],
                     services=request.session['service'],
-                    price=request.session['price'])
+                    price=request.session['price'], status='started')
     order.save()
     drivers = Drivers.objects.all()
     drivers_emails = []
@@ -129,21 +138,26 @@ def success(request):
         drivers_emails.append(i.email)
         drivers_phones.append(i.phone_no)
         print(i.phone_no)
-
-    send_mail(
-        'sending mail regarding new order',
-        f"new order has came please accept and pickup the parcel from {request.session['address']['pickup_area']} and deliver"
-        f"to area = {request.session['address']['delivery_area']} , location = {request.session['address']['delivery_location']},"
-        f"pincode= {request.session['address']['delivery_pincode']}",
-        'ravindrareddy72868@gmail.com',
-        [drivers_emails[1]],
-        fail_silently=False,
-    )
-    request.session['driver'] = drivers_emails[1]
-    message = SmsMessage(body="message sended",
-        from_phone='9966244167',
-        to='7286853993')
-    message.send()
+    msg = f"new order has came please accept and pickup the parcel from {request.session['address']['pickup_area']}" \
+          f" and deliver " \
+          f"to area = {request.session['address']['delivery_area']} , " \
+          f"location = {request.session['address']['delivery_location']},"\
+          f"pincode= {request.session['address']['delivery_pincode']} rey message successful ga send ayyinda"
+    # send_mail(
+    #     'sending mail regarding new order',
+    #         msg,
+    #     'ravindrareddy72868@gmail.com',
+    #     [drivers_emails[1]],
+    #     fail_silently=False,
+    # )
+    # request.session['driver'] = drivers_emails[1]
+    # client = Client('AC2bf4c0d59ce8e22adaf36f66db8e94d7', '75b5458d5839d0732541b151c35b6f72')
+    # message = client.messages.create(
+    #     body=msg,
+    #     from_='+17816508594',
+    #     to=['+917286853993', '+919966244167']
+    # )
+    print('message send')
     return render(request, 'success.html', {'order': order})
 
 

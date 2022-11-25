@@ -18,15 +18,18 @@ class DomesticForm(forms.ModelForm):
     # origin=forms.IntegerField()
     class Meta:
         model = Domestic
-        fields = "__all__"
+        fields = ['origin', 'destination']
 
     def clean(self):
-        super(DomesticForm, self).clean()
         origin = self.cleaned_data.get('origin')
-        if origin > 2:
-            self._errors['origin'] = self.error_class([
-                'Minimum 5 characters required'])
-        return self.cleaned_data
+        destination = self.cleaned_data.get('destination')
+        if len(str(origin)) != 6 and len(str(destination)) != 6:
+            print(len(str(origin)), len(str(destination)))
+            raise forms.ValidationError('pincode should contain 6 numbers')
+        if len(str(destination)) != 6:
+            print(len(str(origin)), len(str(destination)))
+            return self.add_error('destination','This pincode should be 6 numbers')
+
 
 class InternationalForm(forms.ModelForm):
     class Meta:
@@ -35,14 +38,17 @@ class InternationalForm(forms.ModelForm):
 
 
 class ParcelDetailsForm(forms.ModelForm):
-    item_weight = forms.CharField(label='item_weight', widget=forms.TextInput(attrs={'placeholder': 'max should be 9kg'}))
+    item_weight = forms.IntegerField(widget=forms.NumberInput(attrs={'placeholder': 'Max should be 6kg'}))
     pickup_date = forms.DateField(widget=forms.NumberInput(attrs={'type': 'date'}))
 
     class Meta:
         model = ParcelDetails
         fields = "__all__"
 
-
+    def clean(self):
+        item_weight = self.cleaned_data['item_weight']
+        if item_weight > 6:
+            return self.add_error('item_weight', 'Item should be below 6kgs')
 
 
 class OrderDetailsForm(forms.ModelForm):

@@ -17,7 +17,7 @@ sh = (("self", 'Self'), ("other", 'Other'))
 
 
 class ParcelDetails(models.Model):
-    item_weight = models.CharField(max_length=1)
+    item_weight = models.IntegerField()
     item_name = models.CharField(max_length=200)
     pickup_date = models.DateField(null=True)
     delivery_hand = models.CharField(max_length=200, choices=sh)
