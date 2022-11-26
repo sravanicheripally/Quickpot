@@ -4,15 +4,16 @@ from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import SignUpForm,DomesticForm,InternationalForm, ParcelDetailsForm,OrderDetailsForm
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from .models import ParcelDetails, Domestic, OrderDetails, Drivers
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from twilio.rest import Client
-
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import Http404
 from django.views.generic import ListView
+from datetime import datetime
 
 
 def base(request):
@@ -26,6 +27,8 @@ def home(request):
             form = DomesticForm(request.POST)
             if form.is_valid():
                 request.session['range'] = request.POST
+                print(request.POST)
+                print(request.session['range'])
                 return HttpResponseRedirect('parcel')
             else:
                 return render(request, 'home.html', {'form': form, 'range': range})
@@ -40,6 +43,7 @@ def home(request):
 
 
 def parcel(request):
+    print(request.session['range'])
     if request.method == 'POST':
         request.session['summary'] = request.POST
         form = ParcelDetailsForm(request.POST, request.FILES)
@@ -53,16 +57,27 @@ def parcel(request):
 
 
 def booking(request):
-
     fm=OrderDetails.objects.all()
-    return render(request, 'booking.html',{'form':fm})
+    paginator = Paginator(fm, 2, orphans=1)
+    page_number = request.GET.get('page')
+    order_page = paginator.get_page(page_number)
+    return render(request, 'booking.html', {'order_page': order_page})
 
 
 def tracking(request):
     return render(request, 'tracking.html')
 
+
 def history(request):
-    fm = OrderDetails.objects.all()
+    print(request.GET)
+    date = request.GET.get('payment')
+    def mdy_to_ymd(d):
+        return datetime.strptime(d, '%b. %d, %Y').strftime('%Y-%m-%d')
+    print(mdy_to_ymd(date))
+    fm = OrderDetails.objects.filter(date=mdy_to_ymd(date))
+    print(request.GET.get('payment'))
+    for i in fm:
+        print(i.date)
     return render(request, "history.html", {'form':fm})
 
 
@@ -118,11 +133,13 @@ def payment_options(request):
     delivery_address += request.session['address']['delivery_area']+' ,'
     delivery_address += request.session['address']['delivery_location']+', '
     delivery_address += request.session['address']['delivery_pincode']
+    print(request.session['range'])
     return render(request, 'payment_options.html', {'price': price, 'delivery': delivery_address})
 
 
 @csrf_exempt
 def success(request):
+    print(request.session['range'])
     order = OrderDetails(user=request.user, origin=request.session['range']['origin'], destination=request.session['range']['destination'],
                     item_weight=request.session['summary']['item_weight'],
                     item_name=request.session['summary']['item_name'], date=request.session['summary']['pickup_date'],
@@ -150,7 +167,7 @@ def success(request):
     #     [drivers_emails[1]],
     #     fail_silently=False,
     # )
-    # request.session['driver'] = drivers_emails[1]
+    request.session['driver'] = drivers_emails[1]
     # client = Client('AC2bf4c0d59ce8e22adaf36f66db8e94d7', '75b5458d5839d0732541b151c35b6f72')
     # message = client.messages.create(
     #     body=msg,
@@ -205,12 +222,15 @@ def user_logout(request):
 
 
 def admin_dashboard(request):
-    orders = OrderDetails.objects.all()
+    orders = OrderDetails.objects.all().order_by('id')
     driver = Drivers.objects.all()
+    total_orders = len(orders)
+    paginator = Paginator(orders, 2, orphans=1)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     for i in driver:
         if i.email == request.session["driver"]:
             driver = i
-    print(driver.name)
-    print(driver.email, '---------------')
-    return render(request, 'admin_dashboard.html', {'orders': orders, 'driver': driver})
+    return render(request, 'admin_dashboard.html', {'page_obj': page_obj, 'driver': driver, 'total': total_orders})
 

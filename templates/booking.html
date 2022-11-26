@@ -11,27 +11,28 @@
 </style>
 
 <div class="don">
-{% for i in form %}
+{% for i in order_page %}
 {% if request.user == i.user %}
-date::{{i.date}}
-
-<a href="/history/"><input name='payment' type="submit" value="ViewDetails" class="btn btn-primary"></a> <br><br><hr>
-</div>
-<div>
-  <span>
-   {% if form.has_previous %}
-    <a href="?page={{form.previous_page_number}}">Previous</a>
-   {% endif %}
-
-    <span>Page {{ form.number }} of {{ form.paginator.num_pages }}</span>
-
-   {% if form.has_next %}
-    <a href="?page={{form.next_page_number}}">Next</a>
-   {% endif %}
-  </span>
- </div>
-
+Date: {{i.date}}<br>
+    <h3>Item Name</h3> {{i.item_name}}<br>
+    <h3>Status</h3> {{i.status}}<br><br>
+<form action="/history" method="get">
+    <input hidden name='payment' type="text" value="{{i.date}}">
+    <input type="submit" value="view details"class="btn btn-primary"><br><hr>
+</form>
 {% endif %}
 {% endfor %}
+
+     {% if order_page.has_previous %}
+    <a href="?page={{order_page.previous_page_number}}">Previous</a>
+   {% endif %}
+
+    <span>Page {{ order_page.number }} of {{ order_page.paginator.num_pages }}</span>
+
+   {% if order_page.has_next %}
+    <a href="?page={{order_page.next_page_number}}">Next</a>
+   {% endif %}
+
+
 {% endblock %}
     </div>

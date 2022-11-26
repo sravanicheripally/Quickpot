@@ -23,11 +23,14 @@ class ParcelDetails(models.Model):
     delivery_hand = models.CharField(max_length=200, choices=sh)
     parcel_image = models.ImageField(upload_to='images')
 
+
 shipment_details = (
    ('started', 'started'),
    ('in process', 'in process'),
    ('completed', 'completed'),
 )
+
+
 class OrderDetails(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, editable=False)
     origin = models.IntegerField()

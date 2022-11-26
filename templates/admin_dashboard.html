@@ -5,13 +5,31 @@
     <title>Title</title>
 </head>
 <body>
-<h2>Orders</h2>
-{% for record in orders %}
-Customer : {{record.user}}
+<h2>Orders <span>{{total}}</span></h2><hr>
+{% for record in page_obj %}
+<h3>Booking ID : {{record.id}}</h3>
+Date of booking: {{record.date}}<br>
+Customer : {{record.user}}<br>
+Delivery Status:
 {{record.status}}
-<h5>driver Details </h5>
-{{driver.name}}<hr>
-
+<h4>Driver Details </h4>
+{{driver.name}}
+{{driver.phone_no}}<hr>
 {% endfor %}
+
+<div>
+  <span>
+   {% if page_obj.has_previous %}
+    <a href="?page={{page_obj.previous_page_number}}">Previous</a>
+   {% endif %}
+
+    <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+   {% if page_obj.has_next %}
+    <a href="?page={{page_obj.next_page_number}}">Next</a>
+   {% endif %}
+  </span>
+ </div>
+
 </body>
 </html>
