@@ -10,10 +10,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from twilio.rest import Client
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.http import Http404
-from django.views.generic import ListView
+from django.core.paginator import Paginator
 from datetime import datetime
+import requests
+from django.contrib import messages
 
 
 def base(request):
@@ -28,7 +28,6 @@ def home(request):
             if form.is_valid():
                 request.session['range'] = request.POST
                 print(request.POST)
-                print(request.session['range'])
                 return HttpResponseRedirect('parcel')
             else:
                 return render(request, 'home.html', {'form': form, 'range': range})
@@ -42,6 +41,7 @@ def home(request):
     return render(request, 'home.html', {"form": form, 'range': range})
 
 
+@login_required(login_url='login')
 def parcel(request):
     print(request.session['range'])
     if request.method == 'POST':
@@ -57,7 +57,7 @@ def parcel(request):
 
 
 def booking(request):
-    fm=OrderDetails.objects.all()
+    fm=OrderDetails.objects.all().filter(user=request.user)
     paginator = Paginator(fm, 2, orphans=1)
     page_number = request.GET.get('page')
     order_page = paginator.get_page(page_number)
@@ -94,6 +94,7 @@ def order_summary(request):
 
 
 def payment_details(request):
+        request.session['address'] = {}
         print(request.GET)
         try:
             request.session['service'] = request.GET.get('service')
@@ -114,12 +115,77 @@ def payment_details(request):
         return render(request, 'payment_details.html')
 
 
+# def address_enter(request):
+#     if request.method == 'POST':
+#         request.session['address'] = request.POST
+#         print(request.session['address'])
+#         return HttpResponseRedirect('payment_options')
+#     return render(request, 'address.html')
+
 def address_enter(request):
-    if request.method == 'POST':
-        request.session['address'] = request.POST
-        print(request.session['address'])
-        return HttpResponseRedirect('payment_options')
-    return render(request, 'address.html')
+    def address_with_pincode(pincode):
+        response=requests.get(f"https://api.postalpincode.in/pincode/{pincode}").json()
+        address = {}
+        for i in response:
+                address['city'] = i['PostOffice'][0]['Block']
+                address['district'] = i['PostOffice'][0]['District']
+                address['state'] = i['PostOffice'][0]['State']
+        return address
+
+    if request.method == 'GET':
+        print(request.GET)
+        if 'pickup_pincode' in request.GET:
+            try:
+                paddress = address_with_pincode(request.GET['pickup_pincode'])
+                request.session['ppincode'] = request.GET['pickup_pincode']
+            except Exception as e:
+                print(e, '-')
+                messages.success(request, 'Enter correct pincode')
+                return render(request, 'address.html')
+            pickup_context = {'pcity': paddress['city'], 'pdistrict': paddress['district'], 'pstate': paddress['state']}
+            request.session['address']['pickup'] = pickup_context
+        if 'delivery_pincode' in request.GET:
+            print('delivery')
+            try:
+                daddress = address_with_pincode(request.GET['delivery_pincode'])
+                request.session['dpincode'] = request.GET['delivery_pincode']
+            except Exception as e:
+                print(e, '--')
+                messages.error(request, 'Enter correct pincode')
+                return render(request, 'address.html')
+            delivery_context ={'dcity': daddress['city'], 'ddistrict': daddress['district'], 'dstate': daddress['state']}
+            request.session['address']['delivery'] = delivery_context
+        if 'address' in request.session:
+            print(request.session['ppincode'],'yes--')
+            request.session.modified = True
+            if 'pickup' in request.session['address'] and 'delivery' in request.session['address']:
+                pickup = request.session['address']['pickup']
+                delivery = request.session['address']['delivery']
+                context = {'pcity': pickup['pcity'], 'pdistrict': pickup['pdistrict'], 'pstate': pickup['pstate'],
+                           'dcity': delivery['dcity'], 'ddistrict': delivery['ddistrict'], 'dstate': delivery['dstate'],
+                           'ppincode': request.session['ppincode'], 'dpincode': request.session['dpincode']}
+                return render(request, 'address.html', context)
+            if 'pickup' in request.session['address']:
+                pickup = request.session['address']['pickup']
+                print(pickup)
+                context = {'pcity': pickup['pcity'], 'pdistrict': pickup['pdistrict'], 'pstate': pickup['pstate'],
+                           'ppincode': request.session['ppincode']}
+                return render(request, 'address.html', context)
+            if 'delivery' in request.session['address']:
+                delivery = request.session['address']['delivery']
+                context = {'dcity': delivery['dcity'], 'ddistrict': delivery['ddistrict'], 'dstate': delivery['dstate'],
+                           'dpincode': request.session['dpincode']}
+                return render(request, 'address.html', context)
+
+        return render(request, 'address.html')
+
+    if request.method=="POST":
+        print(request.POST)
+        if 'pickup' in request.session['address'] and 'delivery' in request.session['address']:
+            return HttpResponseRedirect('payment_options')
+        else:
+            messages.error(request, 'enter all fields')
+            return render(request, 'address.html')
 
 
 def payment_options(request):
@@ -130,9 +196,9 @@ def payment_options(request):
     #     payment = client.order.create({'amount': amount, 'currency': 'INR', 'payment_capture': '1'})
     price = request.session['price']
     delivery_address = ' '
-    delivery_address += request.session['address']['delivery_area']+' ,'
-    delivery_address += request.session['address']['delivery_location']+', '
-    delivery_address += request.session['address']['delivery_pincode']
+    delivery_address += request.session['address']['delivery']['dcity']+' ,'
+    delivery_address += request.session['address']['delivery']['ddistrict']+', '
+    delivery_address += request.session['dpincode']
     print(request.session['range'])
     return render(request, 'payment_options.html', {'price': price, 'delivery': delivery_address})
 
@@ -155,11 +221,11 @@ def success(request):
         drivers_emails.append(i.email)
         drivers_phones.append(i.phone_no)
         print(i.phone_no)
-    msg = f"new order has came please accept and pickup the parcel from {request.session['address']['pickup_area']}" \
+    msg = f"new order has came please accept and pickup the parcel from {request.session['address']['pickup']['pcity']}" \
           f" and deliver " \
-          f"to area = {request.session['address']['delivery_area']} , " \
-          f"location = {request.session['address']['delivery_location']},"\
-          f"pincode= {request.session['address']['delivery_pincode']} rey message successful ga send ayyinda"
+          f"to area = {request.session['address']['delivery']['dcity']} , " \
+          f"location = {request.session['address']['delivery']['ddistrict']},"\
+          f"pincode= {request.session['dpincode']} rey message successful ga send ayyinda"
     # send_mail(
     #     'sending mail regarding new order',
     #         msg,
@@ -172,9 +238,9 @@ def success(request):
     # message = client.messages.create(
     #     body=msg,
     #     from_='+17816508594',
-    #     to=['+917286853993', '+919966244167']
+    #     to='+917286853993'
     # )
-    print('message send')
+    # print('message send')
     return render(request, 'success.html', {'order': order})
 
 

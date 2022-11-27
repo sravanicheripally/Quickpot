@@ -1,7 +1,10 @@
 {% extends 'base.html' %}
 {% block head_content %}
+
+
   {% endblock %}
 {% block content %}
+<div class="home">
 <h3> Welcome {{request.user}}</h3>
 <hr>
 <form action="hom" method="get">
@@ -10,16 +13,20 @@ Choose your Delivery Range:
 <input name='range' type="submit" value="International" class="btn btn-primary">
 </form>
 <div class="col-md-4".col-md-3>
+
   {% if range %}
-<form action="" method="post">
+
+<form action="" method="post" class="domestic">
   {% csrf_token %}
-    {{form.as_p}}
-    <input type="submit" value="Submit">
+  <div class="domestic">{{form.as_p}}</div>
+    <input type="submit" value="Submit" class="btn btn-success">
 </form>
   {% endif %}
 </div>
 <div class="col-md-4".col-md-4>
 
 </div>
+
+  </div>
 
 {% endblock %}

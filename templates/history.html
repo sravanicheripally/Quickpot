@@ -6,6 +6,7 @@
 </head>
 <body>
 {% for i in form %}
+
 <div>
     <h3>{{i.item_name}}</h3>
     <h4>Status: {{i.status}}</h4>
@@ -17,6 +18,7 @@
     <a href="/book"> <input name='payment' type="submit" value="Back" class="btn btn-primary"> </a> <bR>
     <hr>
 </div>
+
 {% endfor %}
 </body>
 </head>

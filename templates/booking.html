@@ -1,18 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
 <center><h1>Your Orders</h1></center>
-<style>
-    .don{
-        margin-right:30%;
-        margin-left:30%;
-        border-style: groove;
 
-    }
-</style>
 
-<div class="don">
 {% for i in order_page %}
-{% if request.user == i.user %}
 Date: {{i.date}}<br>
     <h3>Item Name</h3> {{i.item_name}}<br>
     <h3>Status</h3> {{i.status}}<br><br>
@@ -20,9 +11,7 @@ Date: {{i.date}}<br>
     <input hidden name='payment' type="text" value="{{i.date}}">
     <input type="submit" value="view details"class="btn btn-primary"><br><hr>
 </form>
-{% endif %}
 {% endfor %}
-
      {% if order_page.has_previous %}
     <a href="?page={{order_page.previous_page_number}}">Previous</a>
    {% endif %}
@@ -34,5 +23,6 @@ Date: {{i.date}}<br>
    {% endif %}
 
 
+
+
 {% endblock %}
-    </div>

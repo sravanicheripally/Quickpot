@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import Domestic, International, ParcelDetails, OrderDetails
 from django.core.exceptions import ValidationError
+import requests
 
 
 class SignUpForm(UserCreationForm):
@@ -20,16 +21,28 @@ class DomesticForm(forms.ModelForm):
         model = Domestic
         fields = ['origin', 'destination']
 
+    def address_with_pincode(self, pincode):
+        response = requests.get(f"https://api.postalpincode.in/pincode/{pincode}").json()
+        address = {}
+        for i in response:
+            address['city'] = i['PostOffice'][0]['Block']
+            address['district'] = i['PostOffice'][0]['District']
+            address['state'] = i['PostOffice'][0]['State']
+        return address
+
     def clean(self):
         origin = self.cleaned_data.get('origin')
         destination = self.cleaned_data.get('destination')
-        if len(str(origin)) != 6 and len(str(destination)) != 6:
-            print(len(str(origin)), len(str(destination)))
-            raise forms.ValidationError('pincode should contain 6 numbers')
-        if len(str(destination)) != 6:
-            print(len(str(origin)), len(str(destination)))
-            return self.add_error('destination','This pincode should be 6 numbers')
-
+        try:
+            self.address_with_pincode(origin)
+        except Exception as e:
+            print(e, 'error')
+            self.add_error('origin', 'Please enter a valid origin pincode')
+        try:
+            self.address_with_pincode(destination)
+        except Exception as e:
+            print(e, 'error')
+            self.add_error('destination', 'Please enter valid destination Pincode')
 
 class InternationalForm(forms.ModelForm):
     class Meta:

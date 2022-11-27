@@ -1,11 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-
-</head>
-<body>
+{% extends 'base.html' %}
+{% block head_content %}
+{%  load static %}
+<link  rel="stylesheet" href="{% static 'one.css' %}">
+  {% endblock %}
+{% block content %}
+<div class="jumbotron">
 <h1>Payment Details</h1>
 <form action="" method="get">
 Choose your Delivery service:
@@ -21,7 +20,6 @@ Shipment duration ---- {{days}}-{{days}}/2 days
 
 <br>
 <br>
-
+</div>
 {% endif %}
-</body>
-</html>
+{% endblock %}
