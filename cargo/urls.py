@@ -39,6 +39,9 @@ urlpatterns = [
     path('admin_dashboard', views.admin_dashboard, name='admin_dashboard'),
     path('success', views.success, name='success'),
     path('history/', views.history, name='history'),
+    path('api/register', views.RegisterView.as_view(), name='api_register'),
+    path('api/login', views.LoginView.as_view(), name='api_login'),
+    path('api/user', views.UserView.as_view(), name='api_user')
 
 ]
 

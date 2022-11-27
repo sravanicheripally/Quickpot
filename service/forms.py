@@ -44,6 +44,7 @@ class DomesticForm(forms.ModelForm):
             print(e, 'error')
             self.add_error('destination', 'Please enter valid destination Pincode')
 
+
 class InternationalForm(forms.ModelForm):
     class Meta:
         model = International
