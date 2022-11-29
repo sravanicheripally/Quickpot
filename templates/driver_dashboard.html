@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--origin : {{order.origin}}<br>-->
+<!--destination : {{order.destination}}<br>-->
+<!--Destination_country : {{order.Destination_country}}<br>-->
+<!--service : {{order.services}}<br>-->
+<!--Date : {{order.date}}<br>-->
+<!--price : {{order.price}}<br>-->
+<!--from_whom : {{order.from_whom}}<br>-->
+<!--image : <img src="{{order.parcel_image.url}}" >-->
+
+{% for i in all %}
+Customer Name - {{i.user}} <br>
+Origin - {{i.origin}} <br>
+destination - {{i.destination}} <br>
+Destination_country - {{i.Destination_country}} <br>
+item_weight - {{i.item_weight}} <br>
+item_name - {{i.item_name}} <br>
+services - {{i.services}} <br>
+date - {{i.date}} <br>
+from_whom - {{i.from_whom}} <br>
+image - <img src="{{i.image}" }> <br>
+price - {{i.price}} <br>
+status - {{i.status}} <br>
+Status : {{i.picked}}
+
+
+
+<a href="/edit/{{i.id}}">edit</a> <hr>
+
+
+
+
+{% endfor %}
+
+
+
+</body>
+</html>

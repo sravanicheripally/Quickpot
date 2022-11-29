@@ -2,10 +2,10 @@ import razorpay
 from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-from .forms import SignUpForm, DomesticForm, InternationalForm, ParcelDetailsForm, OrderDetailsForm
+from .forms import SignUpForm, DomesticForm, InternationalForm, ParcelDetailsForm, StatusForm, OrderDetailsForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import ParcelDetails, Domestic, OrderDetails, Drivers
+from .models import ParcelDetails, Domestic, OrderDetails, Drivers, Status
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
@@ -119,7 +119,9 @@ def booking(request):
     paginator = Paginator(fm, 2, orphans=1)
     page_number = request.GET.get('page')
     order_page = paginator.get_page(page_number)
-    return render(request, 'booking.html', {'order_page': order_page})
+    stat = request.session['sta']['Status']
+    print(stat,'...........')
+    return render(request, 'booking.html', {'order_page': order_page, 'stat':stat})
 
 
 def tracking(request):
@@ -217,7 +219,6 @@ def address_enter(request):
                                 'dstate': daddress['state']}
             request.session['address']['delivery'] = delivery_context
         if 'address' in request.session:
-            print(request.session['ppincode'], 'yes--')
             request.session.modified = True
             if 'pickup' in request.session['address'] and 'delivery' in request.session['address']:
                 pickup = request.session['address']['pickup']
@@ -357,8 +358,43 @@ def admin_dashboard(request):
     paginator = Paginator(orders, 2, orphans=1)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    stat = request.session['sta']['Status']
 
     for i in driver:
         if i.email == request.session["driver"]:
             driver = i
-    return render(request, 'admin_dashboard.html', {'page_obj': page_obj, 'driver': driver, 'total': total_orders})
+    return render(request, 'admin_dashboard.html', {'page_obj': page_obj, 'driver': driver, 'total': total_orders, 'stat':stat})
+
+
+def driver_dashboard(request):
+    request.session['sta'] = request.POST
+    all = OrderDetails.objects.all
+
+
+    return render(request, 'driver_dashboard.html', {'all':all})
+
+
+def edit(request, id):
+    model = OrderDetails.objects.get(pk=id)
+    form = OrderDetailsForm(instance=model)
+    if request.method == 'POST':
+        form = OrderDetailsForm(request.POST, instance=model)
+        if form.is_valid():
+            form.save()
+        return HttpResponseRedirect('/driver/')
+    else:
+        return render(request, 'edit.html', {'form': form})
+
+
+def driver_login(request):
+    if request.method == 'POST':
+        form = StatusForm(request.POST)
+        if form.is_valid():
+            form.save()
+        return HttpResponseRedirect('/driver/')
+    else:
+        form = StatusForm()
+    return render(request, 'driverlog.html', {'form':form})
+
+
+

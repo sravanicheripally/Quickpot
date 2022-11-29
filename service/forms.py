@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import Domestic, International, ParcelDetails, OrderDetails
+from .models import Domestic, International, ParcelDetails, OrderDetails, Status
 from django.core.exceptions import ValidationError
 import requests
 
@@ -69,3 +69,17 @@ class OrderDetailsForm(forms.ModelForm):
     class Meta:
         model = OrderDetails
         fields ='__all__'
+
+
+class StatusForm(forms.ModelForm):
+    class Meta:
+        model = Status
+        fields = '__all__'
+
+
+
+
+class OrderDetailsForm(forms.ModelForm):
+    class Meta:
+        model = OrderDetails
+        fields = '__all__'

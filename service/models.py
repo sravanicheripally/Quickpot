@@ -24,13 +24,10 @@ class ParcelDetails(models.Model):
     parcel_image = models.ImageField(upload_to='images')
 
 
-shipment_details = (
-   ('started', 'started'),
-   ('in process', 'in process'),
-   ('completed', 'completed'),
-)
 
 
+
+ch = (("pending", 'pending'), ("picked", 'picked'), ("completed", 'completed'))
 class OrderDetails(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, editable=False)
     origin = models.IntegerField()
@@ -43,8 +40,8 @@ class OrderDetails(models.Model):
     from_whom = models.CharField(max_length=200, null=True)
     image = models.ImageField(null=True, editable=False)
     price = models.IntegerField(null=True)
-    status = models.CharField(max_length=20, choices=shipment_details, null=True)
-
+    status = models.CharField(max_length=200, null=True)
+    picked = models.BooleanField()
 
 class Drivers(models.Model):
     name = models.CharField(max_length=50)
@@ -53,3 +50,13 @@ class Drivers(models.Model):
     area = models.CharField(max_length=30)
     phone_no = models.CharField(max_length=10)
     email = models.EmailField()
+
+class Status(models.Model):
+    deiver_name = models.CharField(max_length=10)
+    driver_mob = models.CharField(max_length=10)
+
+
+
+
+
+
