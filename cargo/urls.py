@@ -42,10 +42,13 @@ urlpatterns = [
     path('api/register', views.RegisterView.as_view(), name='api_register'),
     path('api/login', views.LoginView.as_view(), name='api_login'),
     path('api/user', views.UserView.as_view(), name='api_user'),
-    path('driver/',views.driver_dashboard, name='driver'),
+    path('driversignup', views.driver_signup, name='driversignup'),
+    path('driverdetails', views.driver_details, name='driverdetails'),
+    path('driver_dashboard',views.driver_dashboard, name='driver'),
     path('edit/<int:id>/',views.edit, name='edit'),
-    path('dlog/',views.driver_login, name='dlog'),
-
+    path('complaint',views.complaint, name='complaint'),
+    path('drivers', views.list_drivers, name='drivers'),
+    path('usercomplaints', views.user_complaints, name='usercomplaints')
 ]
 
 if settings.DEBUG:

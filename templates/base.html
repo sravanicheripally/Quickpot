@@ -17,27 +17,24 @@
         <div class="navbar-header">
             <a class="navbar-brand" href="/">QuickPort365</a>
         </div>
-
         <ul class="nav navbar-nav">
-            <li class="active"><a href="/hom">Home</a></li>
-            <li class="active"><a href="/book/">Bookings</a></li>
-            <li class="active"><a href="/trac/">Tracking</a></li>
-            <!--        <li class="active"><a href="/profile/">Profile</a></li>-->
-            <!--        <li class="nav-item dropdown">-->
-            <!--        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
-            <!--          Profile-->
-            <!--        </a>-->
+            {% if not user.is_superuser and not user.is_staff %}
+            <li class="active"><a href="hom">Home</a></li>
+            <li class="active"><a href="book">Bookings</a></li>
+            <li class="active"><a href="complaint">Contact</a></li>
+            {% endif %}
+            {% if user.is_superuser %}
 
-            <!--        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">-->
-            <!--          <a class="dropdown-item" href="#">{{request.user}}</a><br>-->
-            <!--          <a class="dropdown-item" href="/hom">Home</a><br>-->
-            <!--          <a class="dropdown-item" href="#">My account</a><br>-->
-            <!--          <a class="dropdown-item" href="#">Terms & conditions</a><br>-->
-            <!--          <a class="dropdown-item" href="#">About us</a><br>-->
-            <!--          <a class="dropdown-item" href="#">Contact us</a><br>-->
-            <!--          <a class="dropdown-item" href="#">Privacy policy</a><br>-->
-            <!--          <a class="dropdown-item" href="{% url 'logout' %}">Logout</a><br>-->
+             <li class="active"><a href="admin_dashboard">Orders Dashboard</a></li>
+             <li class="active"><a href="drivers">Drivers</a></li>
+              <li class="active"><a href="usercomplaints">Complaints</a></li>
+            {% endif %}
+            {% if user.is_staff and not user.is_superuser %}
+            <li class="active"><a href="driverdetails">Details</a></li>
+             <li class="active"><a href="driver_dashboard">Orders</a></li>
+            {% endif %}
         </ul>
+
 
         <ul class="nav navbar-nav navbar-right">
             <li><a href="/sign"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
@@ -68,7 +65,7 @@
 </nav>
 
 <div class="container">
-
+welcome {{user}}
 </div>
 
 </body>

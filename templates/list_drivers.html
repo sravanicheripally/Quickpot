@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>Drivers Details</h1><hr>
+{% for driver in drivers %}
+{{driver.name}}<br><br>
+{{driver.phone_no}}<br><br>
+{{driver.area}}<br><br><hr>
+{% endfor %}
+</body>
+</html>
+{% endblock %}

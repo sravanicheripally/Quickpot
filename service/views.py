@@ -2,10 +2,11 @@ import razorpay
 from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-from .forms import SignUpForm, DomesticForm, InternationalForm, ParcelDetailsForm, StatusForm, OrderDetailsForm
+from .forms import SignUpForm, DomesticForm, InternationalForm, ParcelDetailsForm, StatusForm, OrderDetailsForm, ComplaintForm
+from .forms import DriverSignUpForm, DriverForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import ParcelDetails, Domestic, OrderDetails, Drivers, Status
+from .models import ParcelDetails, Domestic, OrderDetails, Drivers, Status, Complaint
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
@@ -119,9 +120,7 @@ def booking(request):
     paginator = Paginator(fm, 2, orphans=1)
     page_number = request.GET.get('page')
     order_page = paginator.get_page(page_number)
-    stat = request.session['sta']['Status']
-    print(stat,'...........')
-    return render(request, 'booking.html', {'order_page': order_page, 'stat':stat})
+    return render(request, 'booking.html', {'order_page': order_page})
 
 
 def tracking(request):
@@ -353,48 +352,80 @@ def user_logout(request):
 
 def admin_dashboard(request):
     orders = OrderDetails.objects.all().order_by('id')
+    for order in orders:
+        print(order.user)
+        print(order.picked)
     driver = Drivers.objects.all()
     total_orders = len(orders)
     paginator = Paginator(orders, 2, orphans=1)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    stat = request.session['sta']['Status']
-
-    for i in driver:
-        if i.email == request.session["driver"]:
-            driver = i
-    return render(request, 'admin_dashboard.html', {'page_obj': page_obj, 'driver': driver, 'total': total_orders, 'stat':stat})
+    return render(request, 'admin_dashboard.html', {'page_obj': page_obj, 'driver': driver, 'total': total_orders})
 
 
 def driver_dashboard(request):
     request.session['sta'] = request.POST
-    all = OrderDetails.objects.all
-
-
-    return render(request, 'driver_dashboard.html', {'all':all})
+    orders = OrderDetails.objects.filter(picked=False).order_by('id')
+    print(orders)
+    paginator = Paginator(orders, 2, orphans=1)
+    page_number = request.GET.get('page')
+    orders = paginator.get_page(page_number)
+    return render(request, 'driver_dashboard.html', {'all': orders})
 
 
 def edit(request, id):
     model = OrderDetails.objects.get(pk=id)
+    print(model.user)
     form = OrderDetailsForm(instance=model)
     if request.method == 'POST':
         form = OrderDetailsForm(request.POST, instance=model)
         if form.is_valid():
             form.save()
-        return HttpResponseRedirect('/driver/')
+        return HttpResponseRedirect('/driver_dashboard')
     else:
         return render(request, 'edit.html', {'form': form})
 
 
-def driver_login(request):
+def driver_signup(request):
+    fm = DriverSignUpForm
     if request.method == 'POST':
-        form = StatusForm(request.POST)
+        fm = DriverSignUpForm(request.POST)
+        if fm.is_valid():
+            fm.save()
+            return HttpResponseRedirect('login')
+    return render(request, 'driversignup.html', {'fm': fm})
+
+
+def driver_details(request):
+    form = DriverForm
+    if request.method == 'POST':
+        form = DriverForm(request.POST)
         if form.is_valid():
             form.save()
-        return HttpResponseRedirect('/driver/')
+            return HttpResponseRedirect('driver_dashboard')
+    return render(request, 'driverdetails.html', {'form': form})
+
+
+def complaint(request):
+    if request.method == 'POST':
+        form = ComplaintForm(request.POST)
+        if form.is_valid():
+            book = form.cleaned_data['booking_id']
+            iss = form.cleaned_data['issue']
+            reg = Complaint(booking_id=book, issue=iss, user=request.user)
+            reg.save()
+            form = ComplaintForm()
     else:
-        form = StatusForm()
-    return render(request, 'driverlog.html', {'form':form})
+        form = ComplaintForm()
+    stud = Complaint.objects.filter(user=request.user)
+    return render(request, 'complaint.html', {'form': form, 'stu': stud})
 
 
+def list_drivers(request):
+    drivers = Drivers.objects.all()
+    return render(request, 'list_drivers.html', {'drivers': drivers})
 
+
+def user_complaints(request):
+    comp = Complaint.objects.all()
+    return render(request, 'user_complaints.html', {'comp': comp})

@@ -1,14 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
-{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
- <link href="{% static 'css/two.css' %}" rel="stylesheet">
 </head>
 <body>
-<div class="heloo">
 <form action="" method="post" novalidate>
  {% csrf_token %}
   {% if form.non_field_errors %}
@@ -16,7 +13,7 @@
     <p class="er">{{error}}</p>
    {% endfor %}
   {% endif %}
- {% for fm in form %}
+ {% for fm in fm %}
   {{fm.label_tag}} {{fm}} {{fm.errors|striptags}} <br><br>
  {% endfor %}
  <input type="submit" value="Submit">
@@ -27,10 +24,8 @@
  {% endfor %}
  {% endif %}
  <a href="{% url 'login' %}">Login</a>
- <h4>Signup as a driver</h4>
- <a href="driversignup">Driver Signup</a>
-</div>
+ <h4>Signup as a user</h4>
+ <a href="driversignup">User Signup</a>
 </body>
 </html>
-
 {% endblock %}
