@@ -3,17 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    {% load static %}
+    <link href="{% static 'css/two.css' %}" rel="stylesheet">
 </head>
 <body>
-<h1>Order Summary</h1>
+
+<center><h1 style="color:red;">Order Summary</h1></center><hr>
+<div class="orde">
 {% for detail,value in summary.items %}
 {% if detail != 'csrfmiddlewaretoken' %}
-{{detail}}: {{value}}<br><br>
+    <div class="hell"><br><br>
+{{detail}}: {{value}}
+ </div>
 {% endif %}
 {% endfor %}
-
- <a href="payment" type="button" class="btn btn-primary"><h1>Payment</h1></a>
-<br>
+ <div class="hell">
+ <a href="payment" ><h6><button type="button" class="btn btn-success">Payment</button></h6></a>
  <a href="hom" type='button' class="btn btn-danger">Cancel</a>
+ </div>
+</div>
+
 </body>
 </html>

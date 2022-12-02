@@ -20,14 +20,14 @@
         <ul class="nav navbar-nav">
             {% if not user.is_superuser and not user.is_staff %}
             <li class="active"><a href="hom">Home</a></li>
-            <li class="active"><a href="book">Bookings</a></li>
+            <li class="active"><a href="booking">Bookings</a></li>
             <li class="active"><a href="complaint">Contact</a></li>
             {% endif %}
             {% if user.is_superuser %}
 
              <li class="active"><a href="admin_dashboard">Orders Dashboard</a></li>
              <li class="active"><a href="drivers">Drivers</a></li>
-              <li class="active"><a href="usercomplaints">Complaints</a></li>
+              <li class="active"><a href="usercomplaint">Complaints</a></li>
             {% endif %}
             {% if user.is_staff and not user.is_superuser %}
             <li class="active"><a href="driverdetails">Details</a></li>
@@ -64,9 +64,7 @@
     </div>
 </nav>
 
-<div class="container">
-welcome {{user}}
-</div>
+
 
 </body>
 </html>

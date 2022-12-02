@@ -429,3 +429,6 @@ def list_drivers(request):
 def user_complaints(request):
     comp = Complaint.objects.all()
     return render(request, 'user_complaints.html', {'comp': comp})
+
+def first(request):
+    return render(request,'first.html')
