@@ -17,6 +17,7 @@ sh = (("self", 'Self'), ("other", 'Other'))
 
 
 class ParcelDetails(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,editable=False, null=True)
     item_weight = models.IntegerField()
     item_name = models.CharField(max_length=200)
     pickup_date = models.DateField(null=True)
@@ -50,7 +51,7 @@ class OrderDetails(models.Model):
     image = models.ImageField(null=True, editable=False)
     price = models.IntegerField(null=True)
     status = models.CharField(max_length=200, choices=ch, null=True)
-    picked = models.BooleanField()
+    picked = models.BooleanField(null=True)
     driver = models.ForeignKey(Drivers, on_delete=models.SET_NULL, null=True, blank=True, editable=False)
 
 

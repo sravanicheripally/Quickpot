@@ -27,7 +27,7 @@
 
              <li class="active"><a href="admin_dashboard">Orders Dashboard</a></li>
              <li class="active"><a href="drivers">Drivers</a></li>
-              <li class="active"><a href="usercomplaint">Complaints</a></li>
+              <li class="active"><a href="usercomplaints">Complaints</a></li>
             {% endif %}
             {% if user.is_staff and not user.is_superuser %}
             <li class="active"><a href="driverdetails">Details</a></li>
@@ -37,8 +37,9 @@
 
 
         <ul class="nav navbar-nav navbar-right">
+            {% if not user.is_authenticated %}
             <li><a href="/sign"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-
+{% endif %}
             <li>
                 {% if user.is_authenticated %}
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"

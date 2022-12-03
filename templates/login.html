@@ -10,6 +10,7 @@
  <link href="{% static 'css/one.css' %}" rel="stylesheet">
 </head>
 <body>
+<h3>Please login here to continue</h3><BR>
 <div class="down">
  <form action="" method="POST">
   {% csrf_token %}
@@ -23,7 +24,7 @@
   {% endfor %}
   <input type="submit" value="Login">
  </form>
-  <a href="{% url 'signup' %}">Signup</a>
+  You don't have an account..? <a href="{% url 'signup' %}">Signup</a>
 </div>
 </body>
 </html>

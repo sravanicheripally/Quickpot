@@ -6,7 +6,7 @@
 {% block content %}
 
 <div class="parc">
-<form action="" method="post" enctype="multipart/form-data">
+<form action="summary" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="top">
     {{parcel_form.as_p}}

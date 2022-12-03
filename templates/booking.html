@@ -7,8 +7,11 @@
 Date: {{i.date}}<br>
     <h3>Item Name</h3> {{i.item_name}}<br>
     <h3>Status</h3> {{i.status}}<br><br>
+{{i.parcel_image}}
+ <img src="{{i.parcel_image.url}}" alt="image">
  Status : {{i.status}}
-<form action="/history" method="get">
+
+<form action="histor" method="get">
     <input hidden name='payment' type="text" value="{{i.date}}">
     <input type="submit" value="view details"class="btn btn-primary"><br><hr>
 </form>

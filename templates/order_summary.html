@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+{% extends 'base.html' %}
+{% block content %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -20,6 +21,7 @@
  </div>
 {% endif %}
 {% endfor %}
+   <img src="{{image.url}}">
  <div class="hell">
  <a href="payment" ><h6><button type="button" class="btn btn-success">Payment</button></h6></a>
  <a href="hom" type='button' class="btn btn-danger">Cancel</a>
@@ -28,3 +30,4 @@
 
 </body>
 </html>
+{% endblock %}

@@ -107,6 +107,7 @@ def parcel(request):
         request.session['summary'] = request.POST
         form = ParcelDetailsForm(request.POST, request.FILES)
         if form.is_valid():
+            print(request.FILES)
             form.save()
             return HttpResponseRedirect('summary')
         else:
@@ -115,8 +116,9 @@ def parcel(request):
     return render(request, 'parcel.html', {'parcel_form': parcel_form})
 
 
+@login_required(login_url='login')
 def booking(request):
-    fm = OrderDetails.objects.all().filter(user=request.user)
+    fm = OrderDetails.objects.all().filter(user=request.user).order_by('id')
     paginator = Paginator(fm, 2, orphans=1)
     page_number = request.GET.get('page')
     order_page = paginator.get_page(page_number)
@@ -150,7 +152,6 @@ def profiles(request):
 
 def order_summary(request):
     summary = request.session['summary']
-    print(summary)
     return render(request, 'order_summary.html', {'summary': summary})
 
 
@@ -330,7 +331,7 @@ def logins(request):
                 if user is not None:
                     login(request, user)
                     messages.success(request, 'Logged in successfully !!')
-                    return HttpResponseRedirect('/hom')
+                    return HttpResponseRedirect('/')
         else:
             fm = AuthenticationForm()
         return render(request, 'login.html', {'form': fm})
@@ -370,7 +371,7 @@ def driver_dashboard(request):
     paginator = Paginator(orders, 2, orphans=1)
     page_number = request.GET.get('page')
     orders = paginator.get_page(page_number)
-    return render(request, 'driver_dashboard.html', {'all': orders})
+    return render(request, 'driver_dashboard.html', {'all': orders, 'total': len(orders)})
 
 
 def edit(request, id):
@@ -406,6 +407,7 @@ def driver_details(request):
     return render(request, 'driverdetails.html', {'form': form})
 
 
+@login_required(login_url='login')
 def complaint(request):
     if request.method == 'POST':
         form = ComplaintForm(request.POST)

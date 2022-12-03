@@ -15,13 +15,13 @@ class Internationaladmin(admin.ModelAdmin):
 
 @admin.register(ParcelDetails)
 class ParcelAdmin(admin.ModelAdmin):
-    list_display = ['item_weight', 'item_name', 'pickup_date', 'delivery_hand', 'parcel_image']
+    list_display = ['user', 'item_weight', 'item_name', 'pickup_date', 'delivery_hand', 'parcel_image']
 
 
 @admin.register(OrderDetails)
 class OrderDetailsadmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'origin', 'destination', 'origin', 'destination', 'services',
-                    'date', 'price', 'from_whom', 'driver', 'status']
+    list_display = ['id', 'user', 'origin', 'destination',
+                    'date', 'price', 'image', 'driver', 'status']
 
 
 @admin.register(Drivers)
