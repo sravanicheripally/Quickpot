@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content%}
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+{% for i in orders %}
+Customer Name - {{i.order.user}} <br>
+Origin - {{i.order.origin}} <br>
+destination - {{i.order.destination}} <br>
+Destination_country - {{i.order.Destination_country}} <br>
+item_weight - {{i.order.item_weight}} <br>
+item_name - {{i.order.item_name}} <br>
+services - {{i.order.services}} <br>
+date - {{i.order.date}} <br>
+from_whom - {{i.order.from_whom}} <br>
+price - {{i.order.price}} <br>
+status - {{i.order.status}} <hr>
+
+
+{% endfor %}
+
+</body>
+</html>
+{% endblock %}

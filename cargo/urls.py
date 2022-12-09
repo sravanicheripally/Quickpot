@@ -46,10 +46,11 @@ urlpatterns = [
     path('driversignup', views.driver_signup, name='driversignup'),
     path('driverdetails', views.driver_details, name='driverdetails'),
     path('driver_dashboard',views.driver_dashboard, name='driver'),
-    path('edit/<int:id>/',views.edit, name='edit'),
+    path('edit/<int:id>/',views.edit_order, name='edit'),
     path('complaint',views.complaint, name='complaint'),
     path('drivers', views.list_drivers, name='drivers'),
-    path('usercomplaints', views.user_complaints, name='usercomplaints')
+    path('usercomplaints', views.user_complaints, name='usercomplaints'),
+    path('orderspicked', views.orders_picked, name='orderspicked'),
 ]
 
 if settings.DEBUG:

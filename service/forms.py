@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import Domestic, International, ParcelDetails, OrderDetails, Status, Complaint, Drivers
+from .models import ParcelDetails, OrderDetails, Complaint, Drivers
 from django.core.exceptions import ValidationError
 import requests
 
@@ -16,20 +16,28 @@ class SignUpForm(UserCreationForm):
 
 
 class DriverSignUpForm(UserCreationForm):
-    last_name = forms.IntegerField(label='Phone')
     password2 = forms.CharField(label='Confirm Password (again)', widget=forms.PasswordInput)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'is_staff']
-        labels = {'email': 'Email'}
+        fields = ['username']
+
+    def save(self):
+        obj = super().save(commit=False)
+        obj.is_staff = True
+        obj.save()
+        return obj
 
 
-class DomesticForm(forms.ModelForm):
-    # origin=forms.IntegerField()
-    class Meta:
-        model = Domestic
-        fields = ['origin', 'destination']
+
+
+
+
+
+class DomesticForm(forms.Form):
+    origin = forms.IntegerField()
+    destination = forms.IntegerField()
+    labels = {'origin':'origin pincode', 'destination':'destination pincode'}
 
     def address_with_pincode(self, pincode):
         response = requests.get(f"https://api.postalpincode.in/pincode/{pincode}").json()
@@ -41,24 +49,26 @@ class DomesticForm(forms.ModelForm):
         return address
 
     def clean(self):
-        origin = self.cleaned_data.get('origin')
-        destination = self.cleaned_data.get('destination')
+        origin_pincode = self.cleaned_data.get('origin')
+        destination_pincode = self.cleaned_data.get('destination')
         try:
-            self.address_with_pincode(origin)
+            self.address_with_pincode(origin_pincode)
         except Exception as e:
             print(e, 'error')
-            self.add_error('origin', 'Please enter a valid origin pincode')
+            self.add_error('origin_pincode', 'Please enter a valid origin pincode')
         try:
-            self.address_with_pincode(destination)
+            self.address_with_pincode(destination_pincode)
         except Exception as e:
             print(e, 'error')
-            self.add_error('destination', 'Please enter valid destination Pincode')
+            self.add_error('destination_pincode', 'Please enter valid destination Pincode')
 
 
 class InternationalForm(forms.ModelForm):
-    class Meta:
-        model = International
-        fields = "__all__"
+    destination_country = forms.CharField()
+    origin = forms.IntegerField()
+    destination = forms.IntegerField()
+    labels = {'destination_country':'destination country', 'origin': 'origin pincode', 'destination': 'destination pincode'}
+
 
 
 class ParcelDetailsForm(forms.ModelForm):
@@ -81,10 +91,7 @@ class OrderDetailsForm(forms.ModelForm):
         fields ='__all__'
 
 
-class StatusForm(forms.ModelForm):
-    class Meta:
-        model = Status
-        fields = '__all__'
+
 
 
 class OrderDetailsForm(forms.ModelForm):
@@ -98,8 +105,54 @@ class ComplaintForm(forms.ModelForm):
         model = Complaint
         fields = '__all__'
 
+proof_choices = (
+    ("Aadhar", "Aadhar"),
+    ("Driving_license", "Driving_license"),
+    ("Voter_id", "Voter_id"),
+    ("pancard", "pancard"),
+)
+
 
 class DriverForm(forms.ModelForm):
+    proof_type = forms.ChoiceField(label='proof type', choices=proof_choices)
+    proof_id = forms.CharField(max_length=120)
     class Meta:
         model = Drivers
+        exclude = ['verified', 'username']
         fields = '__all__'
+
+
+    def save(self, user):
+        obj = super().save(commit=False)
+        obj.verified = True
+        obj.username = user
+        obj.save()
+        return obj
+
+    def clean(self):
+        proof_type = self.cleaned_data.get('proof_type')
+        print(proof_type,'hhhhhhhhhhhhhhhhhhh')
+        proof_id = self.cleaned_data.get('proof_id')
+        if proof_type == 'Aadhar':
+            if len(proof_id) == 12:
+                pass
+            else:
+                return self.add_error('proof_id', 'Aadhar number should be 12 digits only')
+
+        if proof_type == 'Driving_license':
+            if len(proof_id) == 12:
+                pass
+            else:
+                return self.add_error('proof_id', 'Driving license number should be 12 digits only')
+
+        if proof_type == 'Voter_id':
+            if len(proof_id) == 12:
+                print('if')
+            else:
+                return self.add_error('proof_id', 'Voter id number should be 12 digits only')
+
+        if proof_type == 'pancard':
+            if len(proof_id) == 12:
+                print('if')
+            else:
+                return self.add_error('proof_id', 'pancard number should be 12 digits only')

@@ -4,8 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <style>
+        .jumbotron{
+          display:flex;
+          flex-direction:column;
+          justify-content:center;
+          align-items:center;
+          margin-left: 390px;
+          margin-right: 400px;
+          text-align: center;
+        }
+        </style>
 </head>
 <body>
+    <br><br><br>
+    <div class="jumbotron">
 <form action="" method="post" novalidate>
  {% csrf_token %}
   {% if form.non_field_errors %}
@@ -26,6 +39,7 @@
  <a href="{% url 'login' %}">Login</a>
  <h4>Signup as a user</h4>
  <a href="sign">User Signup</a>
+</div>
 </body>
 </html>
 {% endblock %}

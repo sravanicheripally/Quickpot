@@ -2,11 +2,11 @@ import razorpay
 from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-from .forms import SignUpForm, DomesticForm, InternationalForm, ParcelDetailsForm, StatusForm, OrderDetailsForm, ComplaintForm
+from .forms import SignUpForm, DomesticForm, InternationalForm, ParcelDetailsForm, OrderDetailsForm, ComplaintForm
 from .forms import DriverSignUpForm, DriverForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import ParcelDetails, Domestic, OrderDetails, Drivers, Status, Complaint
+from .models import ParcelDetails, OrderDetails, Drivers, Complaint, Drivers_orders
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
@@ -151,6 +151,9 @@ def profiles(request):
 
 
 def order_summary(request):
+
+    print('hi')
+    print(request.POST)
     summary = request.session['summary']
     return render(request, 'order_summary.html', {'summary': summary})
 
@@ -273,9 +276,9 @@ def success(request):
                          item_weight=request.session['summary']['item_weight'],
                          item_name=request.session['summary']['item_name'],
                          date=request.session['summary']['pickup_date'],
-                         from_whom=request.session['summary']['delivery_hand'],
                          services=request.session['service'],
-                         price=request.session['price'], status='started')
+                         price=request.session['price'], status='started', receiver_name=request.session['summary']['receiver_name'],
+                         receiver_phone=request.session['summary']['receiver_phone'])
     order.save()
     drivers = Drivers.objects.all()
     drivers_emails = []
@@ -285,11 +288,12 @@ def success(request):
         drivers_emails.append(i.email)
         drivers_phones.append(i.phone_no)
         print(i.phone_no)
-    msg = f"new order has came please accept and pickup the parcel from {request.session['address']['pickup']['pcity']}" \
-          f" and deliver " \
-          f"to area = {request.session['address']['delivery']['dcity']} , " \
-          f"location = {request.session['address']['delivery']['ddistrict']}," \
-          f"pincode= {request.session['dpincode']} rey message successful ga send ayyinda"
+    # msg = f"new order has came please accept and pickup the parcel from {request.session['address']['pickup']['pcity']}" \
+    #       f" and deliver " \
+    #       f"to area = {request.session['address']['delivery']['dcity']} , " \
+    #       f"location = {request.session['address']['delivery']['ddistrict']}," \
+    #       f"pincode= {request.session['dpincode']} , " \
+    #       f"receiver_phone={request.session['range']['receiver_phone']} , "
     # send_mail(
     #     'sending mail regarding new order',
     #         msg,
@@ -297,7 +301,7 @@ def success(request):
     #     [drivers_emails[1]],
     #     fail_silently=False,
     # )
-    request.session['driver'] = drivers_emails[1]
+#    request.session['driver'] = drivers_emails[1]
     # client = Client('AC2bf4c0d59ce8e22adaf36f66db8e94d7', '75b5458d5839d0732541b151c35b6f72')
     # message = client.messages.create(
     #     body=msg,
@@ -363,25 +367,46 @@ def admin_dashboard(request):
     page_obj = paginator.get_page(page_number)
     return render(request, 'admin_dashboard.html', {'page_obj': page_obj, 'driver': driver, 'total': total_orders})
 
+from django.db.models import Q
 
 def driver_dashboard(request):
-    request.session['sta'] = request.POST
-    orders = OrderDetails.objects.filter(picked=False).order_by('id')
-    print(orders)
-    paginator = Paginator(orders, 2, orphans=1)
-    page_number = request.GET.get('page')
-    orders = paginator.get_page(page_number)
-    return render(request, 'driver_dashboard.html', {'all': orders, 'total': len(orders)})
+    driverobj = Drivers.objects.all()
+    driver = None
+    for i in driverobj:
+        if i.username==request.user:
+            driver=i
+    if driver:
+        request.session['sta'] = request.POST
+        orders = OrderDetails.objects.filter(Q(picked=None)|Q(picked=False)).order_by('id')
+        print(orders)
+        paginator = Paginator(orders, 2, orphans=1)
+        page_number = request.GET.get('page')
+        orders = paginator.get_page(page_number)
+        return render(request, 'driver_dashboard.html', {'all': orders, 'total': len(orders), 'driver':driver})
+    else:
+        return render(request, 'driver_dashboard.html')
 
-
-def edit(request, id):
+def edit_order(request, id):
     model = OrderDetails.objects.get(pk=id)
-    print(model.user)
     form = OrderDetailsForm(instance=model)
+    driver = Drivers.objects.all()
+    driver_ = None
+    for i in driver:
+        if i.username == request.user:
+            driver_ = i
+    print(driver_.username)
     if request.method == 'POST':
         form = OrderDetailsForm(request.POST, instance=model)
         if form.is_valid():
+            picked = form.cleaned_data['picked']
+            if picked == True:
+                from .models import Drivers_orders
+                driver_order = Drivers_orders(driver=driver_.username, order=model).save()
+                print('--------------------------')
             form.save()
+
+            print(request.user)
+
         return HttpResponseRedirect('/driver_dashboard')
     else:
         return render(request, 'edit.html', {'form': form})
@@ -392,8 +417,10 @@ def driver_signup(request):
     if request.method == 'POST':
         fm = DriverSignUpForm(request.POST)
         if fm.is_valid():
+            user = fm.cleaned_data['username']
+            print(user)
             fm.save()
-            return HttpResponseRedirect('login')
+            return HttpResponseRedirect('home')
     return render(request, 'driversignup.html', {'fm': fm})
 
 
@@ -402,9 +429,15 @@ def driver_details(request):
     if request.method == 'POST':
         form = DriverForm(request.POST)
         if form.is_valid():
-            form.save()
+            request.user.is_staff = True
+            form.save(request.user)
             return HttpResponseRedirect('driver_dashboard')
     return render(request, 'driverdetails.html', {'form': form})
+
+def orders_picked(request):
+    orders = Drivers_orders.objects.filter(driver=request.user)
+    print(orders)
+    return render(request, 'driver_orders.html', {'orders': orders})
 
 
 @login_required(login_url='login')
