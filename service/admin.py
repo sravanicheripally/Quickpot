@@ -3,9 +3,6 @@ from .models import ParcelDetails, OrderDetails, Drivers, Drivers_orders
 from django.contrib.auth.models import User
 
 
-
-
-
 @admin.register(ParcelDetails)
 class ParcelAdmin(admin.ModelAdmin):
     list_display = ['user', 'item_weight', 'item_name', 'pickup_date', 'parcel_image']
@@ -14,7 +11,7 @@ class ParcelAdmin(admin.ModelAdmin):
 @admin.register(OrderDetails)
 class OrderDetailsadmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'origin', 'destination',
-                    'date', 'price', 'image', 'driver', 'status']
+                    'date', 'price', 'status']
 
 
 @admin.register(Drivers)

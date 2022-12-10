@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User, AbstractUser
 
+
 class ParcelDetails(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,editable=False, null=True)
     item_weight = models.IntegerField()
@@ -13,7 +14,7 @@ class ParcelDetails(models.Model):
 
 class Drivers(models.Model):
     username = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    name = models.CharField(max_length=100,null=True)
+    name = models.CharField(max_length=100, null=True)
     vehicle_name = models.CharField(max_length=30)
     vehicle_no = models.CharField(max_length=10)
     area = models.CharField(max_length=30)
@@ -42,11 +43,10 @@ class OrderDetails(models.Model):
     price = models.IntegerField(null=True)
     status = models.CharField(max_length=200, choices=ch, null=True)
     picked = models.BooleanField(null=True)
-    driver = models.ForeignKey(Drivers, on_delete=models.SET_NULL, null=True, blank=True, editable=False)
     receiver_name = models.CharField(max_length=200, null=True)
     receiver_phone = models.CharField(max_length=200, null=True)
-    aadhar_no = models.IntegerField(null=True)
-    transporter = models.CharField(max_length=200, null=True)
+    driver = models.OneToOneField(Drivers, on_delete=models.SET_NULL, null=True)
+    driver_phone = models.CharField(max_length=11, null=True)
 
 
 class Complaint(models.Model):

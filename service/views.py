@@ -3,7 +3,7 @@ from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import SignUpForm, DomesticForm, InternationalForm, ParcelDetailsForm, OrderDetailsForm, ComplaintForm
-from .forms import DriverSignUpForm, DriverForm
+from .forms import DriverSignUpForm, DriverForm, UpdateOrderStatus
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .models import ParcelDetails, OrderDetails, Drivers, Complaint, Drivers_orders
@@ -271,8 +271,8 @@ def payment_options(request):
 @csrf_exempt
 def success(request):
     print(request.session['range'])
-    order = OrderDetails(user=request.user, origin=request.session['range']['origin'],
-                         destination=request.session['range']['destination'],
+    order = OrderDetails(user=request.user, origin=request.session['range']['origin_pincode'],
+                         destination=request.session['range']['destination_pincode'],
                          item_weight=request.session['summary']['item_weight'],
                          item_name=request.session['summary']['item_name'],
                          date=request.session['summary']['pickup_date'],
@@ -356,18 +356,33 @@ def user_logout(request):
 
 
 def admin_dashboard(request):
+    status = request.GET.get('status')
+
+    def status_orders(orders):
+        total = len(orders)
+        return render(request, 'admin_dashboard.html', {'page_obj': orders, 'total': total})
+
+    Pending = OrderDetails.objects.filter(picked=None).order_by('id')
+    In_Process = OrderDetails.objects.filter(picked=True, status='in_process').order_by('id')
+    Picked = OrderDetails.objects.filter(picked=True).order_by('id')
+    Delivered = OrderDetails.objects.filter(picked=True, status='completed').order_by('id')
+    status_list = {'Pending': Pending, 'In_Process': In_Process, 'Picked': Picked, 'Delivered': Delivered}
+
+    for order_status in status_list:
+        if order_status == status:
+            return status_orders(status_list[order_status])
+            break
+
     orders = OrderDetails.objects.all().order_by('id')
-    for order in orders:
-        print(order.user)
-        print(order.picked)
-    driver = Drivers.objects.all()
     total_orders = len(orders)
     paginator = Paginator(orders, 2, orphans=1)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    return render(request, 'admin_dashboard.html', {'page_obj': page_obj, 'driver': driver, 'total': total_orders})
+    return render(request, 'admin_dashboard.html', {'page_obj': page_obj, 'total': total_orders})
+
 
 from django.db.models import Q
+
 
 def driver_dashboard(request):
     driverobj = Drivers.objects.all()
@@ -386,6 +401,7 @@ def driver_dashboard(request):
     else:
         return render(request, 'driver_dashboard.html')
 
+
 def edit_order(request, id):
     model = OrderDetails.objects.get(pk=id)
     form = OrderDetailsForm(instance=model)
@@ -402,6 +418,10 @@ def edit_order(request, id):
             if picked == True:
                 from .models import Drivers_orders
                 driver_order = Drivers_orders(driver=driver_.username, order=model).save()
+                print(driver_)
+                model.driver = driver_
+                model.driver_phone = driver_.phone_no
+                model.save(update_fields=['driver', 'driver_phone'])
                 print('--------------------------')
             form.save()
 
@@ -420,7 +440,7 @@ def driver_signup(request):
             user = fm.cleaned_data['username']
             print(user)
             fm.save()
-            return HttpResponseRedirect('home')
+            return HttpResponseRedirect('hom')
     return render(request, 'driversignup.html', {'fm': fm})
 
 
@@ -434,10 +454,23 @@ def driver_details(request):
             return HttpResponseRedirect('driver_dashboard')
     return render(request, 'driverdetails.html', {'form': form})
 
+
 def orders_picked(request):
     orders = Drivers_orders.objects.filter(driver=request.user)
     print(orders)
-    return render(request, 'driver_orders.html', {'orders': orders})
+    total = len(orders)
+    return render(request, 'driver_orders.html', {'orders': orders, 'total': total})
+
+
+def update_status(request, id):
+    model = OrderDetails.objects.get(id=id)
+    form = UpdateOrderStatus(instance=model)
+    if request.POST:
+        form = UpdateOrderStatus(request.POST, instance=model)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/orderspicked')
+    return render(request, 'update_status.html', {'form': form})
 
 
 @login_required(login_url='login')
@@ -464,6 +497,7 @@ def list_drivers(request):
 def user_complaints(request):
     comp = Complaint.objects.all()
     return render(request, 'user_complaints.html', {'comp': comp})
+
 
 def first(request):
     return render(request,'first.html')

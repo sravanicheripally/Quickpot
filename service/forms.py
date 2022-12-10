@@ -29,18 +29,14 @@ class DriverSignUpForm(UserCreationForm):
         return obj
 
 
-
-
-
-
-
 class DomesticForm(forms.Form):
-    origin = forms.IntegerField()
-    destination = forms.IntegerField()
-    labels = {'origin':'origin pincode', 'destination':'destination pincode'}
+    origin_pincode = forms.IntegerField()
+    destination_pincode = forms.IntegerField()
 
     def address_with_pincode(self, pincode):
+        print('----------------')
         response = requests.get(f"https://api.postalpincode.in/pincode/{pincode}").json()
+        print(response,'----------------')
         address = {}
         for i in response:
             address['city'] = i['PostOffice'][0]['Block']
@@ -49,8 +45,8 @@ class DomesticForm(forms.Form):
         return address
 
     def clean(self):
-        origin_pincode = self.cleaned_data.get('origin')
-        destination_pincode = self.cleaned_data.get('destination')
+        origin_pincode = self.cleaned_data.get('origin_pincode')
+        destination_pincode = self.cleaned_data.get('destination_pincode')
         try:
             self.address_with_pincode(origin_pincode)
         except Exception as e:
@@ -63,12 +59,11 @@ class DomesticForm(forms.Form):
             self.add_error('destination_pincode', 'Please enter valid destination Pincode')
 
 
-class InternationalForm(forms.ModelForm):
+class InternationalForm(forms.Form):
     destination_country = forms.CharField()
     origin = forms.IntegerField()
     destination = forms.IntegerField()
     labels = {'destination_country':'destination country', 'origin': 'origin pincode', 'destination': 'destination pincode'}
-
 
 
 class ParcelDetailsForm(forms.ModelForm):
@@ -88,16 +83,13 @@ class ParcelDetailsForm(forms.ModelForm):
 class OrderDetailsForm(forms.ModelForm):
     class Meta:
         model = OrderDetails
-        fields ='__all__'
+        fields = ['picked']
 
 
-
-
-
-class OrderDetailsForm(forms.ModelForm):
+class UpdateOrderStatus(forms.ModelForm):
     class Meta:
         model = OrderDetails
-        fields = ['status', 'picked']
+        fields = ['status']
 
 
 class ComplaintForm(forms.ModelForm):

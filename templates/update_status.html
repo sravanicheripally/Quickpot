@@ -5,12 +5,10 @@
     <title>Title</title>
 </head>
 <body>
-<center>
-    <h2>Select Yes to confirm</h2><hr>
-<form action="" method="post">
+<center><form method="post">
     {% csrf_token %}
-   <h3> {{form.as_p}}</h3>
-    <h3><input type="submit"></h3>
+   <h2> {{form.as_p}}</h2><br>
+    <input type="submit">
 </form></center>
 </body>
 </html>

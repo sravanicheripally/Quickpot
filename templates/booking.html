@@ -1,32 +1,30 @@
 {% extends 'base.html' %}
 {% block content %}
 <center><h1>Your Orders</h1></center>
+<hr>
 
+<center>
+    {% for i in order_page %}
+    <h2>Booking id = {{i.id}}</h2>
+    <h4>Date = {{i.date}}</h4>
+    <h4>Item Name = {{i.item_name}}</h4>
+    <h4>Status = {{i.status}}</h4><br>
+    <form action="histor" method="get">
+        <input hidden name='payment' type="text" value="{{i.date}}">
+        <input type="submit" value="view details" class="btn btn-primary"><br>
+        <hr>
+    </form>
+    {% endfor %}
+</center>
+{% if order_page.has_previous %}
+<a href="?page={{order_page.previous_page_number}}">Previous</a>
+{% endif %}
 
-{% for i in order_page %}
-Date: {{i.date}}<br>
-    <h3>Item Name</h3> {{i.item_name}}<br>
-    <h3>Status</h3> {{i.status}}<br><br>
-{{i.parcel_image}}
- <img src="{{i.parcel_image.url}}" alt="image">
- Status : {{i.status}}
+<span>Page {{ order_page.number }} of {{ order_page.paginator.num_pages }}</span>
 
-<form action="histor" method="get">
-    <input hidden name='payment' type="text" value="{{i.date}}">
-    <input type="submit" value="view details"class="btn btn-primary"><br><hr>
-</form>
-{% endfor %}
-     {% if order_page.has_previous %}
-    <a href="?page={{order_page.previous_page_number}}">Previous</a>
-   {% endif %}
-
-    <span>Page {{ order_page.number }} of {{ order_page.paginator.num_pages }}</span>
-
-   {% if order_page.has_next %}
-    <a href="?page={{order_page.next_page_number}}">Next</a>
-   {% endif %}
-
-
+{% if order_page.has_next %}
+<a href="?page={{order_page.next_page_number}}">Next</a>
+{% endif %}
 
 
 {% endblock %}

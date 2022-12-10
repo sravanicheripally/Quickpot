@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
+<center>
 {% if driver %}
 <h1>Total orders to pickup {{total}}</h1>
 <body>
@@ -18,11 +19,9 @@ item_weight - {{i.item_weight}} <br>
 item_name - {{i.item_name}} <br>
 services - {{i.services}} <br>
 date - {{i.date}} <br>
-from_whom - {{i.from_whom}} <br>
-image - <img src="{{i.image}}"> <br>
 price - {{i.price}} <br>
 status - {{i.status}} <br>
-<a href="edit/{{i.id}}">edit</a> <hr>
+<a href="edit/{{i.id}}">Click here to pickup</a> <hr></center>
 
 {% endfor %}
 

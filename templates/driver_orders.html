@@ -5,23 +5,27 @@
     <title>Title</title>
 </head>
 <body>
-
+{% if total %}
+<h1>Total orders you picked = {{total}}</h1><hr>
+<center>
 {% for i in orders %}
+    <h1>Order id = {{i.id}}</h1>
 Customer Name - {{i.order.user}} <br>
 Origin - {{i.order.origin}} <br>
 destination - {{i.order.destination}} <br>
-Destination_country - {{i.order.Destination_country}} <br>
 item_weight - {{i.order.item_weight}} <br>
 item_name - {{i.order.item_name}} <br>
 services - {{i.order.services}} <br>
 date - {{i.order.date}} <br>
-from_whom - {{i.order.from_whom}} <br>
 price - {{i.order.price}} <br>
-status - {{i.order.status}} <hr>
-
-
+status - {{i.order.status}}<br><br>
+    <a href="update_status/{{i.id}}">Update Status</a><hr>
 {% endfor %}
-
+</center>
+{% else %}
+<h1>You didn't Picked any Orders</h1>
+<a href="driver_dashboard">Go to orders</a>
+{% endif %}
 </body>
 </html>
 {% endblock %}

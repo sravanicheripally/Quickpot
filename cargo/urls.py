@@ -28,7 +28,7 @@ urlpatterns = [
     path('trac/',views.tracking,name='trac'),
     path('profiles', views.profiles, name='profiles'),
     path('sign', views.sign, name='signup'),
-    path('login', views.logins, name='login'),
+    path('login/', views.logins, name='login'),
     path('profile', views.profile, name='profile'),
     path('logout/', views.user_logout, name='logout'),
     path('parcel', views.parcel, name='parcel'),
@@ -51,6 +51,7 @@ urlpatterns = [
     path('drivers', views.list_drivers, name='drivers'),
     path('usercomplaints', views.user_complaints, name='usercomplaints'),
     path('orderspicked', views.orders_picked, name='orderspicked'),
+    path('update_status/<int:id>', views.update_status, name='updatestatus')
 ]
 
 if settings.DEBUG:
