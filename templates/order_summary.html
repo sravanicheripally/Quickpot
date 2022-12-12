@@ -16,14 +16,13 @@
 <div class="orde">
 {% for detail,value in summary.items %}
 {% if detail != 'csrfmiddlewaretoken' %}
-    <div class="hell"><br><br>
+    <div class="hell"><br>
 {{detail}}: {{value}}
  </div>
 {% endif %}
-{% endfor %}
-   <img src="{{image.url}}">
+{% endfor %}<br>
  <div class="hell">
- <a href="payment" ><h6><button type="button" class="btn btn-success">Payment</button></h6></a>
+ <a href="payment" ><h6><button type="button" class="btn btn-success">Go to Payment</button></h6></a>
  <a href="hom" type='button' class="btn btn-danger">Cancel</a>
  </div>
 </div>

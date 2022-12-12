@@ -122,7 +122,8 @@ def booking(request):
     paginator = Paginator(fm, 2, orphans=1)
     page_number = request.GET.get('page')
     order_page = paginator.get_page(page_number)
-    return render(request, 'booking.html', {'order_page': order_page})
+    total = len(fm)
+    return render(request, 'booking.html', {'order_page': order_page, 'total': total})
 
 
 def tracking(request):
@@ -271,6 +272,9 @@ def payment_options(request):
 @csrf_exempt
 def success(request):
     print(request.session['range'])
+    print(request.session['address'])
+    pickup = request.session['address']['pickup']
+    delivery = request.session['address']['delivery']
     order = OrderDetails(user=request.user, origin=request.session['range']['origin_pincode'],
                          destination=request.session['range']['destination_pincode'],
                          item_weight=request.session['summary']['item_weight'],
@@ -278,7 +282,9 @@ def success(request):
                          date=request.session['summary']['pickup_date'],
                          services=request.session['service'],
                          price=request.session['price'], status='started', receiver_name=request.session['summary']['receiver_name'],
-                         receiver_phone=request.session['summary']['receiver_phone'])
+                         receiver_phone=request.session['summary']['receiver_phone'],
+                         pickup_address=f'{pickup["pcity"]},{pickup["pdistrict"]},{pickup["pstate"]}',
+                         delivery_address=f'{delivery["dcity"]},{delivery["ddistrict"]},{delivery["dstate"]}')
     order.save()
     drivers = Drivers.objects.all()
     drivers_emails = []
@@ -360,7 +366,10 @@ def admin_dashboard(request):
 
     def status_orders(orders):
         total = len(orders)
-        return render(request, 'admin_dashboard.html', {'page_obj': orders, 'total': total})
+        paginator = Paginator(orders, 2, orphans=1)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        return render(request, 'admin_dashboard.html', {'page_obj': page_obj, 'total': total})
 
     Pending = OrderDetails.objects.filter(picked=None).order_by('id')
     In_Process = OrderDetails.objects.filter(picked=True, status='in_process').order_by('id')
@@ -456,8 +465,10 @@ def driver_details(request):
 
 
 def orders_picked(request):
-    orders = Drivers_orders.objects.filter(driver=request.user)
-    print(orders)
+    orders = Drivers_orders.objects.filter(driver=request.user).order_by('id')
+    paginator = Paginator(orders, 2, orphans=1)
+    page_number = request.GET.get('page')
+    orders = paginator.get_page(page_number)
     total = len(orders)
     return render(request, 'driver_orders.html', {'orders': orders, 'total': total})
 

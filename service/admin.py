@@ -11,7 +11,7 @@ class ParcelAdmin(admin.ModelAdmin):
 @admin.register(OrderDetails)
 class OrderDetailsadmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'origin', 'destination',
-                    'date', 'price', 'status']
+                    'date', 'price', 'status', 'picked']
 
 
 @admin.register(Drivers)

@@ -10,6 +10,8 @@ class ParcelDetails(models.Model):
     parcel_image = models.ImageField(upload_to='images')
     receiver_name = models.CharField(max_length=200, null=True)
     receiver_phone = models.CharField(max_length=200, null=True)
+    created = models.DateTimeField(auto_now=True, null=True)
+    updated = models.DateTimeField(auto_now_add=True, null=True)
 
 
 class Drivers(models.Model):
@@ -23,8 +25,11 @@ class Drivers(models.Model):
     proof_type = models.CharField(max_length=50, null=True)
     proof_id = models.CharField(max_length=120, null=True)
     verified = models.BooleanField(null=True)
+    created = models.DateTimeField(auto_now=True, null=True)
+    updated = models.DateTimeField(auto_now_add=True, null=True)
 
-    def __str__(self):
+
+def __str__(self):
         return self.name
 
 
@@ -38,25 +43,33 @@ class OrderDetails(models.Model):
     item_name = models.CharField(max_length=200)
     services = models.CharField(max_length=200)
     date = models.DateField(null=True)
-    from_whom = models.CharField(max_length=200, null=True)
     image = models.ImageField(null=True, editable=False)
     price = models.IntegerField(null=True)
     status = models.CharField(max_length=200, choices=ch, null=True)
     picked = models.BooleanField(null=True)
+    pickup_address = models.CharField(max_length=500, null=True)
+    delivery_address = models.CharField(max_length=500, null=True)
     receiver_name = models.CharField(max_length=200, null=True)
     receiver_phone = models.CharField(max_length=200, null=True)
-    driver = models.OneToOneField(Drivers, on_delete=models.SET_NULL, null=True)
+    driver = models.ForeignKey(Drivers, on_delete=models.SET_NULL, null=True)
     driver_phone = models.CharField(max_length=11, null=True)
+    created = models.DateTimeField(auto_now=True, null=True)
+    updated = models.DateTimeField(auto_now_add=True, null=True)
 
 
 class Complaint(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, editable=False)
     booking_id = models.IntegerField()
     issue = models.TextField()
+    created = models.DateTimeField(auto_now=True, null=True)
+    updated = models.DateTimeField(auto_now_add=True, null=True)
 
 
 class Drivers_orders(models.Model):
     driver = models.ForeignKey(User, on_delete=models.CASCADE)
     order = models.ForeignKey(OrderDetails, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now=True, null=True)
+    updated = models.DateTimeField(auto_now_add=True, null=True)
+
 
 

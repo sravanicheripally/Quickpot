@@ -81,8 +81,8 @@ DATABASES = {
         'NAME': 'quickport365',
         'USER': 'root',
         'PASSWORD': 'root',
-        'HOST':'localhost',
-        'PORT':'3307',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 
