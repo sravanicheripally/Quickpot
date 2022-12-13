@@ -9,9 +9,21 @@
 <h1>Drivers Details</h1><hr>
 {% for driver in drivers %}
 {{driver.name}}<br><br>
-{{driver.phone_no}}<br><br>
-{{driver.area}}<br><br><hr>
+{{driver.phone}}<br><br>
+{{driver.address}}<br><br>
+{{driver.id_type}}<br><br>
+{{driver.govt_id}}<br><br><hr>
 {% endfor %}
+{% if drivers.has_previous %}
+    <a href="?page={{drivers.previous_page_number}}">Previous</a>
+   {% endif %}
+
+    <span>Page {{ drivers.number }} of {{ drivers.paginator.num_pages }}</span>
+
+   {% if drivers.has_next %}
+    <a href="?page={{drivers.next_page_number}}">Next</a>
+   {% endif %}
+
 </body>
 </html>
 {% endblock %}

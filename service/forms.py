@@ -95,7 +95,7 @@ proof_choices = (
 class AdminDriverForm(forms.ModelForm):
     class Meta:
         model = Admin_driver
-        fields = ['name', 'email', 'phone', 'temp_password']
+        fields = ['name', 'email', 'phone']
 
 
 class DriverDetailsForm(forms.ModelForm):

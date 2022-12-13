@@ -293,14 +293,6 @@ def success(request):
                          pickup_address=f'{pickup["pcity"]},{pickup["pdistrict"]},{pickup["pstate"]}',
                          delivery_address=f'{delivery["dcity"]},{delivery["ddistrict"]},{delivery["dstate"]}')
     order.save()
-    drivers = Drivers.objects.all()
-    drivers_emails = []
-    drivers_phones = []
-    for i in drivers:
-        print(i.email)
-        drivers_emails.append(i.email)
-        drivers_phones.append(i.phone_no)
-        print(i.phone_no)
     # msg = f"new order has came please accept and pickup the parcel from {request.session['address']['pickup']['pcity']}" \
     #       f" and deliver " \
     #       f"to area = {request.session['address']['delivery']['dcity']} , " \
@@ -401,13 +393,11 @@ from django.db.models import Q
 
 
 def driver_dashboard(request):
-    driverobj = Admin_driver.objects.all()
-    driver = None
-    for i in driverobj:
-        if i.username==request.user:
-            driver=i
+    print('jiooo')
+    driver = Admin_driver.objects.get(name=request.user)
     if driver:
         request.session['sta'] = request.POST
+        print('------------------------------')
         orders = OrderDetails.objects.filter(Q(picked=None)|Q(picked=False)).order_by('id')
         print(orders)
         paginator = Paginator(orders, 2, orphans=1)
@@ -421,22 +411,16 @@ def driver_dashboard(request):
 def edit_order(request, id):
     model = OrderDetails.objects.get(pk=id)
     form = OrderDetailsForm(instance=model)
-    driver = Drivers.objects.all()
-    driver_ = None
-    for i in driver:
-        if i.username == request.user:
-            driver_ = i
-    print(driver_.username)
+    driver = Admin_driver.objects.get(name=request.user)
     if request.method == 'POST':
         form = OrderDetailsForm(request.POST, instance=model)
         if form.is_valid():
             picked = form.cleaned_data['picked']
             if picked == True:
                 from .models import Drivers_orders
-                driver_order = Drivers_orders(driver=driver_.username, order=model).save()
-                print(driver_)
-                model.driver = driver_
-                model.driver_phone = driver_.phone_no
+                driver_order = Drivers_orders(driver=request.user, order=model).save()
+                model.driver = driver
+                model.driver_phone = driver.phone
                 model.save(update_fields=['driver', 'driver_phone'])
                 print('--------------------------')
             form.save()
@@ -468,7 +452,6 @@ def update_status(request, id):
     return render(request, 'update_status.html', {'form': form})
 
 
-
 @login_required(login_url='login')
 def complaint(request):
     if request.method == 'POST':
@@ -486,7 +469,10 @@ def complaint(request):
 
 
 def list_drivers(request):
-    drivers = Drivers.objects.all()
+    drivers = Admin_driver.objects.all()
+    paginator = Paginator(drivers, per_page=1, orphans=1)
+    page_num = request.GET.get('page')
+    drivers = paginator.get_page(page_num)
     return render(request, 'list_drivers.html', {'drivers': drivers})
 
 
@@ -515,12 +501,13 @@ def admin_driver(request):
             print(form,'------------')
             reg = Admin_driver.objects.get(name=form.cleaned_data['name'])
             print(reg.id, '--------------sdkjfha')
-            msg = f'http://127.0.0.1:8000/driver_details/{reg.id}'
+            msg = f'click the link to complete your details:http://127.0.0.1:8000/driver_details/{reg.id}' \
+                  f'Enter your temparory password in details: hyd0055'
             send_mail(
                 'Testing Mail',
                 msg,
                 'ravindrareddy72868@gmail.com',
-                ['mani.mallula@gmail.com'],
+                [ 'ravindrareddy72868@gmail.com'],
                 fail_silently=False)
             print('success','==================')
     else:
