@@ -51,7 +51,7 @@ urlpatterns = [
     path('orderspicked', views.orders_picked, name='orderspicked'),
     path('update_status/<int:id>', views.update_status, name='updatestatus'),
     path('complaint_order/<int:id>', views.complaint_order, name='complaint_order'),
-    path('admin_driver', views.admin_driver, name='admin_driver'),
+    path('add_driver', views.admin_driver, name='admin_driver'),
     path('driver_details/<int:id>/', views.driver_details, name='driver_details'),
 ]
 

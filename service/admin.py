@@ -21,5 +21,5 @@ class DriversAdmin(admin.ModelAdmin):
 
 @admin.register(Admin_driver)
 class Admin_driveradmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'email', 'phone', 'temp_password', 'new_password',
-                    'govt_id', 'id_type']
+    list_display = ['id', 'name', 'email', 'phone',
+                    'govt_id', 'id_type', 'flag']

@@ -469,7 +469,7 @@ def complaint(request):
 
 
 def list_drivers(request):
-    drivers = Admin_driver.objects.all()
+    drivers = Admin_driver.objects.all().order_by('id')
     paginator = Paginator(drivers, per_page=1, orphans=1)
     page_num = request.GET.get('page')
     drivers = paginator.get_page(page_num)
@@ -498,24 +498,27 @@ def admin_driver(request):
         print(request.POST)
         if form.is_valid():
             form.save()
-            print(form,'------------')
+            print(form, '------------')
             reg = Admin_driver.objects.get(name=form.cleaned_data['name'])
             print(reg.id, '--------------sdkjfha')
-            msg = f'click the link to complete your details:http://127.0.0.1:8000/driver_details/{reg.id}' \
-                  f'Enter your temparory password in details: hyd0055'
+            msg = f'click the link to complete your details:http://127.0.0.1:8000/driver_details/{reg.id}\n' \
+                  f'Temparory password: hyd0055'
+            print(msg)
             send_mail(
                 'Testing Mail',
                 msg,
                 'ravindrareddy72868@gmail.com',
-                [ 'ravindrareddy72868@gmail.com'],
+                ['ravindrareddy72868@gmail.com'],
                 fail_silently=False)
-            print('success','==================')
+            print('success', '==================')
     else:
         form = AdminDriverForm()
-    return render(request, 'admin_driver.html', {'form': form})
+    return render(request, 'add_driver.html', {'form': form})
 
 
 def driver_details(request, id):
+    print(request.session)
+    print(request.user)
     model = Admin_driver.objects.get(id=id)
     form = DriverDetailsForm(instance=model)
     if request.method == 'POST':

@@ -21,12 +21,16 @@ id_type = (('Aadhar_no', 'Aadhar no'),
 class Admin_driver(models.Model):
     name = models.CharField(max_length=12, null=True, unique=True)
     email = models.EmailField(null=True)
-    phone = models.CharField(max_length=12, null=True)
-    address = models.CharField(max_length=12, null=True)
+    phone = models.CharField(max_length=120, null=True)
+    address = models.CharField(max_length=120, null=True)
+    id_type = models.CharField(max_length=20, choices=id_type, null=True)
+    govt_id = models.CharField(max_length=12, null=True)
     temp_password = models.CharField(max_length=12, null=True)
     new_password = models.CharField(max_length=30,null=True)
-    govt_id = models.CharField(max_length=12, null=True)
-    id_type = models.CharField(max_length=20, choices=id_type, null=True)
+    flag = models.BooleanField(null=True)
+    created = models.DateTimeField(auto_now=True, null=True)
+    updated = models.DateTimeField(auto_now_add=True, null=True)
+
 
 
 ch = (("started", 'started'), ("in_process", 'in_process'), ("completed", 'completed'))

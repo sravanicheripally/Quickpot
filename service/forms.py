@@ -102,4 +102,8 @@ class DriverDetailsForm(forms.ModelForm):
     password2 = forms.CharField(label='Confirm Password (again)', widget=forms.PasswordInput)
     class Meta:
         model = Admin_driver
-        fields = '__all__'
+        exclude = ['flag']
+
+    def save(self, commit=True):
+        self.instance.flag = True
+        return super().save(commit=commit)
