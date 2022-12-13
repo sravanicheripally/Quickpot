@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ParcelDetails, OrderDetails, Drivers, Drivers_orders
+from .models import ParcelDetails, OrderDetails, Drivers_orders, Admin_driver
 from django.contrib.auth.models import User
 
 
@@ -14,13 +14,12 @@ class OrderDetailsadmin(admin.ModelAdmin):
                     'date', 'price', 'status', 'picked']
 
 
-@admin.register(Drivers)
-class DriversAdmin(admin.ModelAdmin):
-    list_display = ['username','vehicle_name', 'vehicle_no', 'area', 'phone_no', 'email', 'verified']
-
-
 @admin.register(Drivers_orders)
 class DriversAdmin(admin.ModelAdmin):
     list_display = ['driver', 'order']
 
 
+@admin.register(Admin_driver)
+class Admin_driveradmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'email', 'phone', 'temp_password', 'new_password',
+                    'govt_id', 'id_type']

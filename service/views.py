@@ -2,11 +2,12 @@ import razorpay
 from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-from .forms import SignUpForm, DomesticForm, InternationalForm, ParcelDetailsForm, OrderDetailsForm, ComplaintForm
-from .forms import DriverSignUpForm, DriverForm, UpdateOrderStatus
+from .forms import SignUpForm, DomesticForm, InternationalForm, ParcelDetailsForm, OrderDetailsForm, ComplaintForm, \
+    AdminDriverForm, DriverDetailsForm
+from .forms import UpdateOrderStatus, AdminDriverForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import ParcelDetails, OrderDetails, Drivers, Complaint, Drivers_orders
+from .models import ParcelDetails, OrderDetails, Complaint, Drivers_orders, Admin_driver
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
@@ -76,6 +77,12 @@ class UserView(APIView):
 
 
 def base(request):
+    # msg = 'hii'
+    # send_mail(
+    #     'sending mail regarding new order',msg,
+    #     , 'mani.mallula@gmail.com', ['ravindrareddy72868@gmail.com']
+    #     fail_silently=False,
+    # )
     return render(request, 'base.html')
 
 
@@ -311,10 +318,10 @@ def success(request):
     # client = Client('AC2bf4c0d59ce8e22adaf36f66db8e94d7', '75b5458d5839d0732541b151c35b6f72')
     # message = client.messages.create(
     #     body=msg,
-    #     from_='+17816508594',
-    #     to='+917286853993'
-    # )
-    # print('message send')
+    #     from_='+17816508594',93'
+    #     # )
+    #     # print('message send')
+    #     to='+9172868539
     return render(request, 'success.html', {'order': order})
 
 
@@ -394,7 +401,7 @@ from django.db.models import Q
 
 
 def driver_dashboard(request):
-    driverobj = Drivers.objects.all()
+    driverobj = Admin_driver.objects.all()
     driver = None
     for i in driverobj:
         if i.username==request.user:
@@ -406,7 +413,7 @@ def driver_dashboard(request):
         paginator = Paginator(orders, 2, orphans=1)
         page_number = request.GET.get('page')
         orders = paginator.get_page(page_number)
-        return render(request, 'driver_dashboard.html', {'all': orders, 'total': len(orders), 'driver':driver})
+        return render(request, 'driver_dashboard.html', {'all': orders, 'total': len(orders), 'driver': driver})
     else:
         return render(request, 'driver_dashboard.html')
 
@@ -441,29 +448,6 @@ def edit_order(request, id):
         return render(request, 'edit.html', {'form': form})
 
 
-def driver_signup(request):
-    fm = DriverSignUpForm
-    if request.method == 'POST':
-        fm = DriverSignUpForm(request.POST)
-        if fm.is_valid():
-            user = fm.cleaned_data['username']
-            print(user)
-            fm.save()
-            return HttpResponseRedirect('hom')
-    return render(request, 'driversignup.html', {'fm': fm})
-
-
-def driver_details(request):
-    form = DriverForm
-    if request.method == 'POST':
-        form = DriverForm(request.POST)
-        if form.is_valid():
-            request.user.is_staff = True
-            form.save(request.user)
-            return HttpResponseRedirect('driver_dashboard')
-    return render(request, 'driverdetails.html', {'form': form})
-
-
 def orders_picked(request):
     orders = Drivers_orders.objects.filter(driver=request.user).order_by('id')
     paginator = Paginator(orders, 2, orphans=1)
@@ -482,6 +466,7 @@ def update_status(request, id):
             form.save()
             return HttpResponseRedirect('/orderspicked')
     return render(request, 'update_status.html', {'form': form})
+
 
 
 @login_required(login_url='login')
@@ -510,5 +495,53 @@ def user_complaints(request):
     return render(request, 'user_complaints.html', {'comp': comp})
 
 
+def complaint_order(request):
+    order_details = OrderDetails.objects.all()
+    comp = Complaint.objects.all()
+
+    return render(request, 'complaint_order.html', {'comp': comp, 'order_details': order_details})
+
+
 def first(request):
     return render(request,'first.html')
+
+
+def admin_driver(request):
+    if request.method == 'POST':
+        form = AdminDriverForm(request.POST)
+        print(request.POST)
+        if form.is_valid():
+            form.save()
+            print(form,'------------')
+            reg = Admin_driver.objects.get(name=form.cleaned_data['name'])
+            print(reg.id, '--------------sdkjfha')
+            msg = f'http://127.0.0.1:8000/driver_details/{reg.id}'
+            send_mail(
+                'Testing Mail',
+                msg,
+                'ravindrareddy72868@gmail.com',
+                ['mani.mallula@gmail.com'],
+                fail_silently=False)
+            print('success','==================')
+    else:
+        form = AdminDriverForm()
+    return render(request, 'admin_driver.html', {'form': form})
+
+
+def driver_details(request, id):
+    model = Admin_driver.objects.get(id=id)
+    form = DriverDetailsForm(instance=model)
+    if request.method == 'POST':
+        form = DriverDetailsForm(request.POST, instance=model)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['new_password']
+            form.save()
+            user = User.objects.create_user(name, email, password)
+            user.is_staff = True
+            user.save()
+            return HttpResponseRedirect('/')
+    return render(request, 'driver_details.html', {'form': form})
+
+

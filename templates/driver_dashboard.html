@@ -6,7 +6,7 @@
     <title>Title</title>
 </head>
 <center>
-{% if driver %}
+
 <h1>Total orders to pickup {{total}}</h1><hr>
 <body>
 {% for i in all %}
@@ -35,11 +35,6 @@ status - {{i.status}} <br>
     <a href="?page={{all.next_page_number}}">Next</a>
    {% endif %}
 
-{% else %}
-<h3> please complete your details to see the orders </h3>
-<a href="driverdetails"> click here to enter details</a>
-
-{% endif %}
 
 </body>
 </html>

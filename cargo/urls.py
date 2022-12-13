@@ -43,15 +43,16 @@ urlpatterns = [
     path('api/register', views.RegisterView.as_view(), name='api_register'),
     path('api/login', views.LoginView.as_view(), name='api_login'),
     path('api/user', views.UserView.as_view(), name='api_user'),
-    path('driversignup', views.driver_signup, name='driversignup'),
-    path('driverdetails', views.driver_details, name='driverdetails'),
     path('driver_dashboard', views.driver_dashboard, name='driver'),
     path('edit/<int:id>/', views.edit_order, name='edit'),
     path('complaint', views.complaint, name='complaint'),
     path('drivers', views.list_drivers, name='drivers'),
     path('usercomplaints', views.user_complaints, name='usercomplaints'),
     path('orderspicked', views.orders_picked, name='orderspicked'),
-    path('update_status/<int:id>', views.update_status, name='updatestatus')
+    path('update_status/<int:id>', views.update_status, name='updatestatus'),
+    path('complaint_order/<int:id>', views.complaint_order, name='complaint_order'),
+    path('admin_driver', views.admin_driver, name='admin_driver'),
+    path('driver_details/<int:id>/', views.driver_details, name='driver_details'),
 ]
 
 if settings.DEBUG:

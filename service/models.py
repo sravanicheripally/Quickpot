@@ -9,31 +9,29 @@ class ParcelDetails(models.Model):
     pickup_date = models.DateField(null=True)
     parcel_image = models.ImageField(upload_to='images')
     receiver_name = models.CharField(max_length=200, null=True)
-    receiver_phone = models.CharField(max_length=200, null=True)
+    receiver_phone = models.CharField(max_length=12, null=True)
     created = models.DateTimeField(auto_now=True, null=True)
     updated = models.DateTimeField(auto_now_add=True, null=True)
 
 
-class Drivers(models.Model):
-    username = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    name = models.CharField(max_length=100, null=True)
-    vehicle_name = models.CharField(max_length=30)
-    vehicle_no = models.CharField(max_length=10)
-    area = models.CharField(max_length=30)
-    phone_no = models.CharField(max_length=10)
-    email = models.EmailField()
-    proof_type = models.CharField(max_length=50, null=True)
-    proof_id = models.CharField(max_length=120, null=True)
-    verified = models.BooleanField(null=True)
-    created = models.DateTimeField(auto_now=True, null=True)
-    updated = models.DateTimeField(auto_now_add=True, null=True)
-
-
-def __str__(self):
-        return self.name
+id_type = (('Aadhar_no', 'Aadhar no'),
+        ('Driving_license', 'Driving license'),
+        ('Pancard', 'Pancard'),
+    )
+class Admin_driver(models.Model):
+    name = models.CharField(max_length=12, null=True, unique=True)
+    email = models.EmailField(null=True)
+    phone = models.CharField(max_length=12, null=True)
+    address = models.CharField(max_length=12, null=True)
+    temp_password = models.CharField(max_length=12, null=True)
+    new_password = models.CharField(max_length=30,null=True)
+    govt_id = models.CharField(max_length=12, null=True)
+    id_type = models.CharField(max_length=20, choices=id_type, null=True)
 
 
 ch = (("started", 'started'), ("in_process", 'in_process'), ("completed", 'completed'))
+
+
 class OrderDetails(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, editable=False)
     origin = models.IntegerField()
@@ -51,7 +49,7 @@ class OrderDetails(models.Model):
     delivery_address = models.CharField(max_length=500, null=True)
     receiver_name = models.CharField(max_length=200, null=True)
     receiver_phone = models.CharField(max_length=200, null=True)
-    driver = models.ForeignKey(Drivers, on_delete=models.SET_NULL, null=True)
+    driver = models.ForeignKey(Admin_driver, on_delete=models.SET_NULL, null=True)
     driver_phone = models.CharField(max_length=11, null=True)
     created = models.DateTimeField(auto_now=True, null=True)
     updated = models.DateTimeField(auto_now_add=True, null=True)
@@ -70,6 +68,15 @@ class Drivers_orders(models.Model):
     order = models.ForeignKey(OrderDetails, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now=True, null=True)
     updated = models.DateTimeField(auto_now_add=True, null=True)
+
+
+
+
+
+
+
+
+
 
 
 

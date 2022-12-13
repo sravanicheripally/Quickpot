@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import ParcelDetails, OrderDetails, Complaint, Drivers
+from .models import ParcelDetails, OrderDetails, Complaint,Admin_driver
 from django.core.exceptions import ValidationError
 import requests
 
@@ -14,19 +14,6 @@ class SignUpForm(UserCreationForm):
         fields = ['username', 'email', 'first_name', 'last_name']
         labels = {'email': 'Email'}
 
-
-class DriverSignUpForm(UserCreationForm):
-    password2 = forms.CharField(label='Confirm Password (again)', widget=forms.PasswordInput)
-
-    class Meta:
-        model = User
-        fields = ['username']
-
-    def save(self):
-        obj = super().save(commit=False)
-        obj.is_staff = True
-        obj.save()
-        return obj
 
 
 class DomesticForm(forms.Form):
@@ -105,46 +92,14 @@ proof_choices = (
 )
 
 
-class DriverForm(forms.ModelForm):
-    proof_type = forms.ChoiceField(label='proof type', choices=proof_choices)
-    proof_id = forms.CharField(max_length=120)
+class AdminDriverForm(forms.ModelForm):
     class Meta:
-        model = Drivers
-        exclude = ['verified', 'username']
+        model = Admin_driver
+        fields = ['name', 'email', 'phone', 'temp_password']
+
+
+class DriverDetailsForm(forms.ModelForm):
+    password2 = forms.CharField(label='Confirm Password (again)', widget=forms.PasswordInput)
+    class Meta:
+        model = Admin_driver
         fields = '__all__'
-
-
-    def save(self, user):
-        obj = super().save(commit=False)
-        obj.verified = True
-        obj.username = user
-        obj.save()
-        return obj
-
-    def clean(self):
-        proof_type = self.cleaned_data.get('proof_type')
-        print(proof_type,'hhhhhhhhhhhhhhhhhhh')
-        proof_id = self.cleaned_data.get('proof_id')
-        if proof_type == 'Aadhar':
-            if len(proof_id) == 12:
-                pass
-            else:
-                return self.add_error('proof_id', 'Aadhar number should be 12 digits only')
-
-        if proof_type == 'Driving_license':
-            if len(proof_id) == 12:
-                pass
-            else:
-                return self.add_error('proof_id', 'Driving license number should be 12 digits only')
-
-        if proof_type == 'Voter_id':
-            if len(proof_id) == 12:
-                print('if')
-            else:
-                return self.add_error('proof_id', 'Voter id number should be 12 digits only')
-
-        if proof_type == 'pancard':
-            if len(proof_id) == 12:
-                print('if')
-            else:
-                return self.add_error('proof_id', 'pancard number should be 12 digits only')
