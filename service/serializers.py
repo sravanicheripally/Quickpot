@@ -1,5 +1,19 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from .models import OrderDetails, Admin_driver, Complaint, Drivers_orders, ParcelDetails
+from django.contrib.auth import authenticate
+
+
+
+
+
+class SignupSerializer(serializers.ModelSerializer):
+    # password2 = serializers.CharField(allow_blank=False, write_only=True)
+    first_name = serializers.CharField(allow_blank=True)
+    last_name = serializers.CharField(allow_blank=True)
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'password']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -17,3 +31,33 @@ class UserSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+
+
+class ParcelDetailsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ParcelDetails
+        exclude = ['parcel_image']
+
+
+class OrderDetailsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderDetails
+        fields = '__all__'
+
+
+class Admin_driverSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Admin_driver
+        fields = '__all__'
+
+
+class ComplaintSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Complaint
+        fields = '__all__'
+
+
+class Drivers_ordersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Drivers_orders
+        fields = '__all__'

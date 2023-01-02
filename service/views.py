@@ -3,11 +3,11 @@ from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import SignUpForm, DomesticForm, InternationalForm, ParcelDetailsForm, OrderDetailsForm, ComplaintForm, \
-    AdminDriverForm, DriverDetailsForm
+   DriverDetailsForm
 from .forms import UpdateOrderStatus, AdminDriverForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import ParcelDetails, OrderDetails, Complaint, Drivers_orders, Admin_driver
+from .models import OrderDetails, Complaint, Drivers_orders, Admin_driver, ParcelDetails
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
@@ -20,7 +20,35 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 import jwt
-from .serializers import UserSerializer
+from .serializers import UserSerializer, OrderDetailsSerializer, SignupSerializer, ParcelDetailsSerializer,\
+    Drivers_ordersSerializer, ComplaintSerializer
+from rest_framework.viewsets import ModelViewSet
+from rest_framework import status
+
+
+class ParcelDetailsdetails(ModelViewSet):
+    queryset = ParcelDetails.objects.all()
+    serializer_class = ParcelDetailsSerializer
+
+
+class Orderdetails(ModelViewSet):
+    queryset = OrderDetails.objects.all()
+    serializer_class = OrderDetailsSerializer
+
+
+class Drivers_ordersView(ModelViewSet):
+    queryset = Drivers_orders.objects.all()
+    serializer_class = Drivers_ordersSerializer
+
+
+class ComplaintView(ModelViewSet):
+    queryset = Complaint.objects.all()
+    serializer_class = ComplaintSerializer
+
+
+class Signup(ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = SignupSerializer
 
 
 class RegisterView(APIView):
@@ -33,29 +61,35 @@ class RegisterView(APIView):
 
 class LoginView(APIView):
     def post(self, request):
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        print(password)
-        user = User.objects.filter(email=email).first()
-        user.set_password(password)
-        if user is None:
-            raise AuthenticationFailed('user not found')
-        if not user.check_password(password):
-            raise AuthenticationFailed('Incorrect Password')
+        print(request.data)
+        username = request.data.get('username')
+        password = request.data.get('password')
+        print(username)
+        user = User.objects.filter(username=username).first()
 
-        payload = {
-            'id': user.id,
-            'exp': datetime.utcnow()+timedelta(minutes=5),
-            'iat': datetime.utcnow()
-        }
-        token = jwt.encode(payload, 'secret', algorithm='HS256')
-        response = Response()
-        response.set_cookie(key='jwt', value=token, httponly=True)
-        print(request.COOKIES)
-        response.data = {
-            'jwt': token
-        }
-        return response
+        user.set_password(password)
+        if user is not None:
+            if user.check_password(password):
+                print('hiii')
+                login(request, user)
+                return Response('login successful')
+            else:
+                raise AuthenticationFailed('Incorrect Password')
+        else:
+            raise AuthenticationFailed('user not found')
+
+        # payload = {
+        #     'id': user.id,
+        #     'exp': datetime.utcnow()+timedelta(minutes=5),
+        #     'iat': datetime.utcnow()
+        # }
+        # token = jwt.encode(payload, 'secret', algorithm='HS256')
+        # response = Response()
+        # response.set_cookie(key='jwt', value=token, httponly=True)
+        # print(request.COOKIES)
+        # response.data = {
+        #     'jwt': token
+        # }
 
 
 class UserView(APIView):
@@ -64,15 +98,16 @@ class UserView(APIView):
         token = request.COOKIES.get('jwt')
         print(token, '--------')
         if not token:
+            print('no=======')
             raise AuthenticationFailed('Unauthenticated User')
-
         try:
-            payload = jwt.decode(token, 'secret', algorithm=['HS256'])
-        except:
+            payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+        except Exception as e:
+            print(e,'yes------------')
             raise AuthenticationFailed('Unauthenticated user')
 
-        user = User.objects.filter(id=payload['id']).first()
-        serializer = UserSerializer(user)
+        user = User.objects.all()
+        serializer = UserSerializer(user, many=True)
         return Response(serializer.data)
 
 
@@ -293,36 +328,23 @@ def success(request):
                          pickup_address=f'{pickup["pcity"]},{pickup["pdistrict"]},{pickup["pstate"]}',
                          delivery_address=f'{delivery["dcity"]},{delivery["ddistrict"]},{delivery["dstate"]}')
     order.save()
-    # msg = f"new order has came please accept and pickup the parcel from {request.session['address']['pickup']['pcity']}" \
-    #       f" and deliver " \
-    #       f"to area = {request.session['address']['delivery']['dcity']} , " \
-    #       f"location = {request.session['address']['delivery']['ddistrict']}," \
-    #       f"pincode= {request.session['dpincode']} , " \
-    #       f"receiver_phone={request.session['range']['receiver_phone']} , "
-    # send_mail(
-    #     'sending mail regarding new order',
-    #         msg,
-    #     'ravindrareddy72868@gmail.com',
-    #     [drivers_emails[1]],
-    #     fail_silently=False,
-    # )
-#    request.session['driver'] = drivers_emails[1]
-    # client = Client('AC2bf4c0d59ce8e22adaf36f66db8e94d7', '75b5458d5839d0732541b151c35b6f72')
-    # message = client.messages.create(
-    #     body=msg,
-    #     from_='+17816508594',93'
-    #     # )
-    #     # print('message send')
-    #     to='+9172868539
+    # msg = f"new order has came please accept and pickup the parcel from {request.session['address']['pickup'][
+    # 'pcity']}" \ f" and deliver " \ f"to area = {request.session['address']['delivery']['dcity']} , " \ f"location
+    # = {request.session['address']['delivery']['ddistrict']}," \ f"pincode= {request.session['dpincode']} ,
+    # " \ f"receiver_phone={request.session['range']['receiver_phone']} , " send_mail( 'sending mail regarding new
+    # order', msg, 'ravindrareddy72868@gmail.com', [drivers_emails[1]], fail_silently=False, ) request.session[
+    # 'driver'] = drivers_emails[1] client = Client('AC2bf4c0d59ce8e22adaf36f66db8e94d7',
+    # '75b5458d5839d0732541b151c35b6f72') message = client.messages.create( body=msg, from_='+17816508594',
+    # 93' # ) # print('message send') to='+9172868539
     return render(request, 'success.html', {'order': order})
 
 
 def sign(request):
     if request.method == "POST":
         fm = SignUpForm(request.POST)
+
         if fm.is_valid():
             fm.save()
-
             messages.success(request, 'Account Created Successfully !!')
     else:
         fm = SignUpForm()
@@ -393,12 +415,11 @@ from django.db.models import Q
 
 
 def driver_dashboard(request):
-    print('jiooo')
     driver = Admin_driver.objects.get(name=request.user)
     if driver:
         request.session['sta'] = request.POST
         print('------------------------------')
-        orders = OrderDetails.objects.filter(Q(picked=None)|Q(picked=False)).order_by('id')
+        orders = OrderDetails.objects.filter(Q(picked=None) | Q(picked=False)).order_by('id')
         print(orders)
         paginator = Paginator(orders, 2, orphans=1)
         page_number = request.GET.get('page')
@@ -489,7 +510,7 @@ def complaint_order(request):
 
 
 def first(request):
-    return render(request,'first.html')
+    return render(request, 'first.html')
 
 
 def admin_driver(request):
@@ -497,18 +518,21 @@ def admin_driver(request):
         form = AdminDriverForm(request.POST)
         print(request.POST)
         if form.is_valid():
+            email = form.cleaned_data['email']
             form.save()
             print(form, '------------')
             reg = Admin_driver.objects.get(name=form.cleaned_data['name'])
+
             print(reg.id, '--------------sdkjfha')
             msg = f'click the link to complete your details:http://127.0.0.1:8000/driver_details/{reg.id}\n' \
                   f'Temparory password: hyd0055'
             print(msg)
+            print(email)
             send_mail(
                 'Testing Mail',
                 msg,
                 'ravindrareddy72868@gmail.com',
-                ['ravindrareddy72868@gmail.com'],
+                [email],
                 fail_silently=False)
             print('success', '==================')
     else:
