@@ -16,25 +16,29 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from service import views
+from service.apis import views as apiviews
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework import routers
 router = routers.DefaultRouter()
-router.register('total_orders', views.Orderdetails)
-router.register('signup', views.Signup)
-router.register('driver_orders', views.Drivers_ordersView)
-router.register('complaints', views.ComplaintView)
-router.register('parcels', views.ParcelDetailsdetails)
+router.register('total_orders', apiviews.Orderdetails)
+router.register('signup', apiviews.Signup)
+router.register('driver_orders', apiviews.Drivers_ordersView)
+router.register('complaints', apiviews.ComplaintView)
+router.register('parcels', apiviews.ParcelDetailsdetails)
+router.register('drivers', apiviews.AdminDriverView)
 
 
 urlpatterns = [
     path('api/', include(router.urls)),
+    path('api/login', apiviews.LoginView.as_view(), name='api_login'),
+    path('api/pincodes', apiviews.PincodeView.as_view(), name='api_pincodes'),
     path('admin/', admin.site.urls),
     path('', views.first),
     path('', views.base, name='base'),
     path('hom', views.home, name='home'),
-    path('booking', views.booking,name='book'),
-    path('trac/',views.tracking,name='trac'),
+    path('booking', views.booking, name='book'),
+    path('trac/', views.tracking, name='trac'),
     path('profiles', views.profiles, name='profiles'),
     path('sign', views.sign, name='signup'),
     path('log_in', views.logins, name='login'),
@@ -50,7 +54,6 @@ urlpatterns = [
     path('success', views.success, name='success'),
     path('histor', views.history, name='history'),
     # path('api/register', views.RegisterView.as_view(), name='api_register'),
-    path('api/login', views.LoginView.as_view(), name='api_login'),
     # path('api/user', views.UserView.as_view(), name='api_user'),
     path('driver_dashboard', views.driver_dashboard, name='driver'),
     path('edit/<int:id>/', views.edit_order, name='edit'),

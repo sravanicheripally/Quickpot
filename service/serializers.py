@@ -4,11 +4,7 @@ from .models import OrderDetails, Admin_driver, Complaint, Drivers_orders, Parce
 from django.contrib.auth import authenticate
 
 
-
-
-
 class SignupSerializer(serializers.ModelSerializer):
-    # password2 = serializers.CharField(allow_blank=False, write_only=True)
     first_name = serializers.CharField(allow_blank=True)
     last_name = serializers.CharField(allow_blank=True)
     class Meta:
@@ -58,6 +54,9 @@ class ComplaintSerializer(serializers.ModelSerializer):
 
 
 class Drivers_ordersSerializer(serializers.ModelSerializer):
+    driver = serializers.CharField(source='driver.username')
+    order = serializers.CharField(source='order.item_name')
     class Meta:
         model = Drivers_orders
+        depth = 2
         fields = '__all__'

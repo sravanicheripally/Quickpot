@@ -15,7 +15,6 @@ class SignUpForm(UserCreationForm):
         labels = {'email': 'Email'}
 
 
-
 class DomesticForm(forms.Form):
     origin_pincode = forms.IntegerField()
     destination_pincode = forms.IntegerField()

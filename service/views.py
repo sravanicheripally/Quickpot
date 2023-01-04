@@ -20,8 +20,8 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 import jwt
-from .serializers import UserSerializer, OrderDetailsSerializer, SignupSerializer, ParcelDetailsSerializer,\
-    Drivers_ordersSerializer, ComplaintSerializer
+from .serializers import *
+
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 
@@ -29,6 +29,11 @@ from rest_framework import status
 class ParcelDetailsdetails(ModelViewSet):
     queryset = ParcelDetails.objects.all()
     serializer_class = ParcelDetailsSerializer
+
+
+class AdminDriverView(ModelViewSet):
+    queryset = Admin_driver.objects.all()
+    serializer_class = Admin_driverSerializer
 
 
 class Orderdetails(ModelViewSet):
@@ -109,6 +114,23 @@ class UserView(APIView):
         user = User.objects.all()
         serializer = UserSerializer(user, many=True)
         return Response(serializer.data)
+
+
+class PincodeView(APIView):
+    def post(self, request):
+        origin_pin = request.data.get('origin_pincode')
+        destination_pin = request.data.get('destination_pincode')
+        origin = requests.get(f"https://api.postalpincode.in/pincode/{origin_pin}").json()
+        destination = requests.get(f"https://api.postalpincode.in/pincode/{destination_pin}").json()
+
+        if destination[0]['Status'] != 'Error' and origin[0]['Status'] != 'Error':
+            return Response('success')
+        else:
+            return Response({
+                "Failure": "Invalid Pincodes"
+            },
+                status=status.HTTP_400_BAD_REQUEST)
+
 
 
 def base(request):
