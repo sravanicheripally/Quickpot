@@ -3,7 +3,7 @@ from django.contrib.auth.models import User, AbstractUser
 
 
 class ParcelDetails(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE,editable=False, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, editable=False, null=True)
     item_weight = models.IntegerField()
     item_name = models.CharField(max_length=200)
     pickup_date = models.DateField(null=True)
@@ -26,11 +26,10 @@ class Admin_driver(models.Model):
     id_type = models.CharField(max_length=20, choices=id_type, null=True)
     govt_id = models.CharField(max_length=12, null=True)
     temp_password = models.CharField(max_length=12, null=True)
-    new_password = models.CharField(max_length=30,null=True)
+    new_password = models.CharField(max_length=30, null=True)
     flag = models.BooleanField(null=True)
     created = models.DateTimeField(auto_now=True, null=True)
     updated = models.DateTimeField(auto_now_add=True, null=True)
-
 
 
 ch = (("started", 'started'), ("in_process", 'in_process'), ("completed", 'completed'))
@@ -72,6 +71,7 @@ class Drivers_orders(models.Model):
     order = models.ForeignKey(OrderDetails, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now=True, null=True)
     updated = models.DateTimeField(auto_now_add=True, null=True)
+
 
 
 

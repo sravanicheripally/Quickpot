@@ -21,7 +21,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework import routers
 router = routers.DefaultRouter()
-router.register('total_orders', apiviews.Orderdetails)
+router.register('total_orders', apiviews.OrderdetailsView)
+router.register('total_orders_pending', apiviews.OrderdetailsPendingView)
+router.register('total_orders_picked', apiviews.OrderdetailsPickedView)
+router.register('total_orders_process', apiviews.OrderdetailsProcessView)
+router.register('total_orders_delivered', apiviews.OrderdetailsDeliveredView)
 router.register('signup', apiviews.Signup)
 router.register('driver_orders', apiviews.Drivers_ordersView)
 router.register('complaints', apiviews.ComplaintView)
@@ -31,7 +35,8 @@ router.register('drivers', apiviews.AdminDriverView)
 
 urlpatterns = [
     path('api/', include(router.urls)),
-    path('api/login', apiviews.LoginView.as_view(), name='api_login'),
+    path('api/login/', apiviews.LoginView.as_view(), name='api_login'),
+    path('api/logout/', apiviews.LogoutView.as_view()),
     path('api/pincodes', apiviews.PincodeView.as_view(), name='api_pincodes'),
     path('admin/', admin.site.urls),
     path('', views.first),

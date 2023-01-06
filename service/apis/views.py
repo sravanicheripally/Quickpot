@@ -8,7 +8,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from django.contrib.auth import login, logout
 from rest_framework.authentication import BasicAuthentication, TokenAuthentication
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
 
 class ParcelDetailsdetails(ModelViewSet):
@@ -23,9 +23,29 @@ class AdminDriverView(ModelViewSet):
     serializer_class = Admin_driverSerializer
 
 
-class Orderdetails(ModelViewSet):
+class OrderdetailsView(ModelViewSet):
     queryset = OrderDetails.objects.all()
     serializer_class = OrderDetailsSerializer
+
+
+class OrderdetailsPendingView(ModelViewSet):
+    queryset = OrderDetails.objects.filter(picked=None)
+    serializer_class = OrderDetailsSerializerPending
+
+
+class OrderdetailsPickedView(ModelViewSet):
+    queryset = OrderDetails.objects.filter(picked=True)
+    serializer_class = OrderDetailsSerializerPicked
+
+
+class OrderdetailsProcessView(ModelViewSet):
+    queryset = OrderDetails.objects.filter(picked=True, status='in_process')
+    serializer_class = OrderDetailsSerializerInProcess
+
+
+class OrderdetailsDeliveredView(ModelViewSet):
+    queryset = OrderDetails.objects.filter(picked=True, status='completed')
+    serializer_class = OrderDetailsSerializerDelivered
 
 
 class Drivers_ordersView(ModelViewSet):
@@ -53,18 +73,23 @@ class RegisterView(APIView):
 
 class LoginView(APIView):
     def post(self, request):
-        print(request.data)
         username = request.data.get('username')
         password = request.data.get('password')
-        print(username)
+        print(request.auth)
         user = User.objects.filter(username=username).first()
-        print(user.is_superuser)
+
         user.set_password(password)
         if user is not None:
             if user.check_password(password):
                 print('hiii')
                 login(request, user)
-                return Response('login successful')
+                return Response({
+                        'status': 'success',
+                        'data': {'user': username},
+                        'is_superuser': user.is_superuser,
+                        'is_staff': user.is_staff,
+                        'message': 'login successful'
+                    })
             else:
                 raise AuthenticationFailed('Incorrect Password')
         else:
@@ -111,6 +136,20 @@ class PincodeView(APIView):
         destination = requests.get(f"https://api.postalpincode.in/pincode/{destination_pin}").json()
         print(destination)
         if destination[0]['Status'] != 'Error' and origin[0]['Status'] != 'Error':
-            return Response('success')
+            return Response({
+                'status': 'success',
+                'data': {origin_pin, destination_pin},
+                'message': 'Pincode validation successful'
+            })
         else:
-           raise ValidationError('incorrect pincodes')
+           raise ValidationError({
+               'status': 'failure',
+               'data': None,
+               'message': 'Invalid Pincodes'
+           })
+
+
+class LogoutView(APIView):
+    def post(self, request):
+        logout(request)
+        Response('logged out succefully')

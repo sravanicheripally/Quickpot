@@ -36,6 +36,40 @@ class ParcelDetailsSerializer(serializers.ModelSerializer):
 
 
 class OrderDetailsSerializer(serializers.ModelSerializer):
+    driver = serializers.CharField(source='driver.name', allow_null=True)
+    user = serializers.CharField(source='user.username')
+    class Meta:
+        model = OrderDetails
+        fields = '__all__'
+
+
+class OrderDetailsSerializerPending(serializers.ModelSerializer):
+    driver = serializers.CharField(source='driver.name', allow_null=True)
+    user = serializers.CharField(source='user.username')
+    class Meta:
+        model = OrderDetails
+        fields = '__all__'
+
+
+class OrderDetailsSerializerPicked(serializers.ModelSerializer):
+    driver = serializers.CharField(source='driver.name', allow_null=True)
+    user = serializers.CharField(source='user.username')
+    class Meta:
+        model = OrderDetails
+        fields = '__all__'
+
+
+class OrderDetailsSerializerInProcess(serializers.ModelSerializer):
+    driver = serializers.CharField(source='driver.name', allow_null=True)
+    user = serializers.CharField(source='user.username')
+    class Meta:
+        model = OrderDetails
+        fields = '__all__'
+
+
+class OrderDetailsSerializerDelivered(serializers.ModelSerializer):
+    driver = serializers.CharField(source='driver.name', allow_null=True)
+    user = serializers.CharField(source='user.username')
     class Meta:
         model = OrderDetails
         fields = '__all__'
