@@ -38,6 +38,8 @@ urlpatterns = [
     path('api/login/', apiviews.LoginView.as_view(), name='api_login'),
     path('api/logout/', apiviews.LogoutView.as_view()),
     path('api/pincodes', apiviews.PincodeView.as_view(), name='api_pincodes'),
+    path('api/services', apiviews.ServiceView.as_view()),
+    path('api/getaddress', apiviews.GetAddressView.as_view()),
     path('admin/', admin.site.urls),
     path('', views.first),
     path('', views.base, name='base'),

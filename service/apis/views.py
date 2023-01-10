@@ -9,13 +9,14 @@ from rest_framework import status
 from django.contrib.auth import login, logout
 from rest_framework.authentication import BasicAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+import requests
 
 
 class ParcelDetailsdetails(ModelViewSet):
     queryset = ParcelDetails.objects.all()
     serializer_class = ParcelDetailsSerializer
-    authentication_classes = [BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = [BasicAuthentication]
+    # permission_classes = [IsAuthenticated]
 
 
 class AdminDriverView(ModelViewSet):
@@ -75,21 +76,20 @@ class LoginView(APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
-        print(request.auth)
+        print(request.user)
         user = User.objects.filter(username=username).first()
-
         user.set_password(password)
         if user is not None:
             if user.check_password(password):
-                print('hiii')
                 login(request, user)
+                print(request.user)
                 return Response({
-                        'status': 'success',
-                        'data': {'user': username},
-                        'is_superuser': user.is_superuser,
-                        'is_staff': user.is_staff,
-                        'message': 'login successful'
-                    })
+                    'status': 'success',
+                    'data': {'user': username},
+                    'is_superuser': user.is_superuser,
+                    'is_staff': user.is_staff,
+                    'message': 'login successful'
+                })
             else:
                 raise AuthenticationFailed('Incorrect Password')
         else:
@@ -120,7 +120,7 @@ class UserView(APIView):
         try:
             payload = jwt.decode(token, 'secret', algorithms=['HS256'])
         except Exception as e:
-            print(e,'yes------------')
+            print(e, 'yes------------')
             raise AuthenticationFailed('Unauthenticated user')
 
         user = User.objects.all()
@@ -134,22 +134,57 @@ class PincodeView(APIView):
         destination_pin = request.data.get('destination_pincode')
         origin = requests.get(f"https://api.postalpincode.in/pincode/{origin_pin}").json()
         destination = requests.get(f"https://api.postalpincode.in/pincode/{destination_pin}").json()
-        print(destination)
-        if destination[0]['Status'] != 'Error' and origin[0]['Status'] != 'Error':
+        if destination[0]['Status'] == 'Success' and origin[0]['Status'] == 'Success':
             return Response({
                 'status': 'success',
-                'data': {origin_pin, destination_pin},
+                'data': {'origin_pincode': origin_pin,
+                         'destination_pincode': destination_pin},
                 'message': 'Pincode validation successful'
             })
         else:
-           raise ValidationError({
-               'status': 'failure',
-               'data': None,
-               'message': 'Invalid Pincodes'
-           })
+            raise ValidationError({
+                'status': 'failure',
+                'data': None,
+                'message': 'Invalid Pincodes'
+            })
 
 
 class LogoutView(APIView):
     def post(self, request):
         logout(request)
         Response('logged out succefully')
+
+
+class ServiceView(APIView):
+    def post(self, request):
+        price, days = 0, ''
+        if request.data.get('service') == 'standard':
+            price = 500
+            days = '3 to 4 days'
+        else:
+            price = 800
+            days = '1 to 2 days'
+        return Response({
+            'status': 'Success',
+            'data': {
+                'price': price,
+                'days': days
+            }
+        })
+
+
+class GetAddressView(APIView):
+    def get(self, request):
+        pincode = request.data.get('pincode')
+        response = requests.get(f"https://api.postalpincode.in/pincode/{pincode}").json()
+        if response[0]['Status'] != 'Error':
+            for i in response:
+                response = {
+                    'Mandal': i['PostOffice'][0]['Block'],
+                    'District': i['PostOffice'][0]['District'],
+                    'State': i['PostOffice'][0]['State']
+                }
+        return Response({
+            'status': 'success',
+            'data': response
+        })
