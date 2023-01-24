@@ -35,6 +35,7 @@ router.register('drivers', apiviews.AdminDriverView)
 
 urlpatterns = [
     path('api/', include(router.urls)),
+    path('api/register/', apiviews.RegisterView.as_view()),
     path('api/login/', apiviews.LoginView.as_view(), name='api_login'),
     path('api/logout/', apiviews.LogoutView.as_view()),
     path('api/pincodes', apiviews.PincodeView.as_view(), name='api_pincodes'),

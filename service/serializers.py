@@ -2,23 +2,25 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import OrderDetails, Admin_driver, Complaint, Drivers_orders, ParcelDetails
 from django.contrib.auth import authenticate
+from rest_framework.exceptions import ValidationError
 
 
 class SignupSerializer(serializers.ModelSerializer):
-    first_name = serializers.CharField(allow_blank=True)
-    last_name = serializers.CharField(allow_blank=True)
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'password']
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email', 'password']
         extra_kwargs = {
             'password': {'write_only': True}
         }
+
+    # def validate(self, attrs):
+    #     print(attrs)
+    #     if len(attrs['password']) != 8:
+    #         raise ValidationError('Password must be 8 characters')
+    #     return attrs
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)

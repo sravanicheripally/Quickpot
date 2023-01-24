@@ -76,9 +76,8 @@ class LoginView(APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
-        print(request.user)
+        print(username,password)
         user = User.objects.filter(username=username).first()
-        user.set_password(password)
         if user is not None:
             if user.check_password(password):
                 login(request, user)
@@ -152,7 +151,8 @@ class PincodeView(APIView):
 class LogoutView(APIView):
     def post(self, request):
         logout(request)
-        Response('logged out succefully')
+        print('yes')
+        return Response('logged out succefully')
 
 
 class ServiceView(APIView):
