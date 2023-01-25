@@ -52,6 +52,13 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': ['rest_framework.authentication.SessionAuthentication']
+}
+
+
+
 APPEND_SLASH = False
 CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
 CORS_ALLOW_ALL_ORIGINS = True

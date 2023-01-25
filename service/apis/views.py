@@ -7,9 +7,11 @@ import requests
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from django.contrib.auth import login, logout
-from rest_framework.authentication import BasicAuthentication, TokenAuthentication
+from rest_framework.authentication import BasicAuthentication, TokenAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 import requests
+from django.core.mail import send_mail
+from rest_framework import permissions
 
 
 class ParcelDetailsdetails(ModelViewSet):
@@ -24,9 +26,28 @@ class AdminDriverView(ModelViewSet):
     serializer_class = Admin_driverSerializer
 
 
+class IsAuthenticatedAndStaff(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.is_authenticated and request.is_staff
+
+
 class OrderdetailsView(ModelViewSet):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
     queryset = OrderDetails.objects.all()
     serializer_class = OrderDetailsSerializer
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        serializer = self.serializer_class(data=data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    def get_permissions(self):
+        if self.action == 'PATCH':
+            self.permission_classes = [IsAuthenticatedAndStaff]
+        return super().get_permissions()
 
 
 class OrderdetailsPendingView(ModelViewSet):
@@ -64,14 +85,6 @@ class Signup(ModelViewSet):
     serializer_class = SignupSerializer
 
 
-class RegisterView(APIView):
-    def post(self, request):
-        serializer = UserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
-
-
 class LoginView(APIView):
     def post(self, request):
         username = request.data.get('username')
@@ -106,25 +119,6 @@ class LoginView(APIView):
         # response.data = {
         #     'jwt': token
         # }
-
-
-class UserView(APIView):
-    def get(self, request):
-        print(request.COOKIES)
-        token = request.COOKIES.get('jwt')
-        print(token, '--------')
-        if not token:
-            print('no=======')
-            raise AuthenticationFailed('Unauthenticated User')
-        try:
-            payload = jwt.decode(token, 'secret', algorithms=['HS256'])
-        except Exception as e:
-            print(e, 'yes------------')
-            raise AuthenticationFailed('Unauthenticated user')
-
-        user = User.objects.all()
-        serializer = UserSerializer(user, many=True)
-        return Response(serializer.data)
 
 
 class PincodeView(APIView):
@@ -187,4 +181,35 @@ class GetAddressView(APIView):
         return Response({
             'status': 'success',
             'data': response
+        })
+
+
+class DriverEntryByAdminView(APIView):
+    def post(self, request):
+        serializer = DriverEntryByAdminSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        driver = Admin_driver.objects.get(name=serializer.data.get('name'))
+        msg = f'click the link to complete your details:http://127.0.0.1:8000/driver_details/{driver.id}\n' \
+              f'Temparory password: hyd0055'
+        send_mail(
+            'Testing Mail',
+            msg,
+            'ravindrareddy72868@gmail.com',
+            [driver.email],
+            fail_silently=False)
+        return Response({
+            'status': 'success',
+            'data': 'data received'
+        })
+
+
+class DriverSignupView(APIView):
+    def post(self, request):
+        serializer = DriverSignupSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({
+            'response': 'success',
+            'data': 'driver signup successful'
         })
