@@ -54,7 +54,8 @@ MIDDLEWARE = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': ['rest_framework.authentication.SessionAuthentication']
+    'DEFAULT_AUTHENTICATION_CLASSES':
+        ['rest_framework.authentication.SessionAuthentication']
 }
 
 
@@ -126,7 +127,7 @@ DATABASES = {
         'USER': 'root',
         'PASSWORD': 'root',
         'HOST': 'localhost',
-        'PORT': '3307',
+        'PORT': '3306',
     }
 }
 

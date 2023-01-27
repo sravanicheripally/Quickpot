@@ -28,7 +28,8 @@ class AdminDriverView(ModelViewSet):
 
 class IsAuthenticatedAndStaff(permissions.BasePermission):
     def has_permission(self, request, view):
-        return request.is_authenticated and request.is_staff
+        print(request.user, '----------')
+        return request.user.is_authenticated and request.user.is_staff
 
 
 class OrderdetailsView(ModelViewSet):
@@ -45,7 +46,7 @@ class OrderdetailsView(ModelViewSet):
         return Response(serializer.data)
 
     def get_permissions(self):
-        if self.action == 'PATCH':
+        if self.request.method == 'PATCH':
             self.permission_classes = [IsAuthenticatedAndStaff]
         return super().get_permissions()
 
@@ -186,21 +187,19 @@ class GetAddressView(APIView):
 
 class DriverEntryByAdminView(APIView):
     def post(self, request):
+        print(request.data,'===========')
         serializer = DriverEntryByAdminSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        print(serializer.data,'--------')
         driver = Admin_driver.objects.get(name=serializer.data.get('name'))
         msg = f'click the link to complete your details:http://127.0.0.1:8000/driver_details/{driver.id}\n' \
               f'Temparory password: hyd0055'
         send_mail(
-            'Testing Mail',
-            msg,
-            'ravindrareddy72868@gmail.com',
-            [driver.email],
-            fail_silently=False)
+            'Testing Mail', msg, 'ravindrareddy72868@gmail.com', [driver.email], fail_silently=False)
         return Response({
             'status': 'success',
-            'data': 'data received'
+            'data': 'driver entry successfull'
         })
 
 

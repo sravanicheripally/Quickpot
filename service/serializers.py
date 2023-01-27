@@ -38,18 +38,28 @@ class ParcelDetailsSerializer(serializers.ModelSerializer):
 
 
 class OrderDetailsSerializer(serializers.ModelSerializer):
-    # driver = serializers.CharField(source='driver.name')
-    user = serializers.CharField(source='user.username')
+    driver = serializers.CharField(source='driver.name', allow_null=True, required=False)
+    user = serializers.CharField(source='user.username', allow_null=True, required=False)
     class Meta:
         model = OrderDetails
         fields = '__all__'
 
     def create(self, validated_data):
-        user = self.context.get('request')
+        request = self.context.get('request')
         instance = self.Meta.model(**validated_data)
-        instance.user = user.user
+        instance.user = request.user
         instance.save()
         return instance
+
+    def update(self, instance, validated_data):
+        request = self.context.get('request')
+        print(validated_data)
+        order = self.Meta.model.objects.get(id=instance.id)
+        driver = Admin_driver.objects.get(name=request.user)
+        order.driver = driver
+        order.picked = validated_data['picked']
+        order.save()
+        return order
 
 
 class OrderDetailsSerializerPending(serializers.ModelSerializer):
@@ -109,7 +119,7 @@ class DriverEntryByAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Admin_driver
         fields = ['name', 'email', 'phone']
-        global extra_kwargs
+
         extra_kwargs = {field: {'required': True} for field in fields}
 
 
@@ -117,5 +127,4 @@ class DriverSignupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Admin_driver
         fields = '__all__'
-        extra_kwargs = extra_kwargs | {field: {'required': True} for field in ['address', 'govt_id', 'password']}
-        print(extra_kwargs)
+        extra_kwargs = {field: {'required': True} for field in ['address', 'govt_id', 'password']}
