@@ -1,0 +1,24 @@
+.sucessimage{ 
+    background-image: url("./Images/img11.webp");
+     height: 700px;
+     background-position: center;
+     background-repeat: no-repeat;
+     background-size: cover;
+     overflow-x: hidden;
+ }
+ .card{
+ position:relative;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ 
+ }
+ .container{  
+     text-align: center;  
+ 
+    
+  
+     }  
+     #btn{  
+     font-size: 25px;  
+     }  

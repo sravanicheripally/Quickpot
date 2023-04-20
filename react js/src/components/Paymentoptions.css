@@ -1,0 +1,8 @@
+.Paymentoptionimage{ 
+    background-image: url("./Images/payment.png");
+     height: 700px;
+     background-position: center;
+     background-repeat: no-repeat;
+     background-size: cover;
+     overflow-x: hidden;
+ }
