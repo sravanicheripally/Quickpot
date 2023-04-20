@@ -17,8 +17,8 @@ from rest_framework import permissions
 class ParcelDetailsdetails(ModelViewSet):
     queryset = ParcelDetails.objects.all()
     serializer_class = ParcelDetailsSerializer
-    # authentication_classes = [BasicAuthentication]
-    # permission_classes = [IsAuthenticated]
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
 
 
 class AdminDriverView(ModelViewSet):
