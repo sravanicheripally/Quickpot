@@ -1,0 +1,33 @@
+.serviceimage{ 
+   background-image: url("./Images/img7.jpg");
+    height: 700px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    overflow-x: hidden;
+}
+.card{
+position:relative;
+display: flex;
+align-items: center;
+justify-content: center;
+
+}
+.container{  
+    text-align: center;  
+
+   
+ 
+    }  
+    #btn{  
+    font-size: 25px;  
+    }  
+/* @media screen and (max-width:768px){
+    .card{
+        position:inherit;
+        bottom:inherit;
+        margin:.25rem 0px;
+        font-size:inherit;
+        color:inherit;
+    } */
+/* } */

@@ -1,0 +1,30 @@
+.Welcome{
+   padding-top: 10px;
+    background-color:rgb(233, 203, 83);
+    height: 50px;
+ }
+  .Location {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+ } 
+ 
+.image{
+text-decoration: none;
+}
+ 
+ .example .overlay {
+   position: absolute;
+   top: 50%;
+   right: 50%;
+   font-weight: bold;
+   text-align: right;
+   font-size: 30px;
+ }
+ .SignUp{text-decoration: none;
+   color: white;
+   }
+
+
+   

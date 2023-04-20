@@ -1,0 +1,14 @@
+.containersignup{
+    /* background: #007bff; */
+  background-image: url('../components/Images/Login.jpeg');
+  
+    
+   } 
+    .btn-login {
+      font-size: 0.9rem;
+      letter-spacing: 0.03rem;
+      padding: 0.65rem 0rem;
+    }
+    .Parcel{text-decoration: none;
+        color: white;
+        }

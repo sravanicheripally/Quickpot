@@ -1,0 +1,8 @@
+.Driverimage{ 
+    background-image: url("./Images/image300.jpg");
+     height: 700px;
+     background-position: center;
+     background-repeat: no-repeat;
+     background-size: cover;
+     overflow-x: hidden;
+ }
